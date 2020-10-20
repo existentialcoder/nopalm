@@ -1,0 +1,35 @@
+{
+    "env": {
+        "node": true,
+        "mocha": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018
+    },
+    "extends": "airbnb-base",
+    "overrides": [
+        {
+            "files": [
+                "*.js"
+            ],
+            "rules": {
+                "no-console": "off"
+            }
+        },
+        {
+            "files": [
+                "*.spec.js"
+            ],
+            "rules": {
+                "max-lines": [
+                    "error",
+                    1500
+                ],
+                "max-lines-per-function": [
+                    "error",
+                    1500
+                ]
+            }
+        }
+    ]
+}

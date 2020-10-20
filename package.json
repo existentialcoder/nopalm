@@ -8,12 +8,16 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "eslint": "^7.11.0",
+    "nodemon": "^2.0.4",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.22.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cp -ar client/build/. public/ && node ./",
-    "dev": "NODE_ENV=development node ./"
+    "dev": "NODE_ENV=development node ./",
+    "lint": "eslint -f table . --fix"
   },
   "author": "Shravan Balasubramanian <shravanayyappa@gmail.com>",
   "license": "ISC"
