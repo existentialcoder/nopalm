@@ -1,0 +1,20 @@
+{
+  "name": "napaalm",
+  "version": "1.0.0",
+  "description": "Node Projects Manager - User Interface to manage your node projects",
+  "main": "lib/index.js",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cp -ar client/build/. public/ && node ./",
+    "dev": "NODE_ENV=development node ./"
+  },
+  "author": "Shravan Balasubramanian <shravanayyappa@gmail.com>",
+  "license": "ISC"
+}
