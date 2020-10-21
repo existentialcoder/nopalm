@@ -1,0 +1,127 @@
+{
+	"info": {
+		"_postman_id": "3451f7f6-17e6-4a2c-a6a9-a28f4c2337af",
+		"name": "Node Project Manager",
+		"description": "Project Manager UI client for Node",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Installed packages - GET",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/api/packages/installed",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"api",
+						"packages",
+						"installed"
+					]
+				},
+				"description": "Get all installed packages"
+			},
+			"response": []
+		},
+		{
+			"name": "Install Package - POST",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"package\": {\n        \"name\": \"chai\",\n        \"version\": \"latest\",\n        \"isDev\": true\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8001/api/packages/installed?package_manager=yarn",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"api",
+						"packages",
+						"installed"
+					],
+					"query": [
+						{
+							"key": "package_manager",
+							"value": "yarn"
+						}
+					]
+				},
+				"description": "Install a package"
+			},
+			"response": []
+		},
+		{
+			"name": "Uninstall package",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"package\": {\n        \"name\": \"mocha\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8001/api/packages/installed?package_manager=npm",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"api",
+						"packages",
+						"installed"
+					],
+					"query": [
+						{
+							"key": "package_manager",
+							"value": "npm"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Package managers in project",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8001/api/package-managers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8001",
+					"path": [
+						"api",
+						"package-managers"
+					]
+				},
+				"description": "Get package managers used in the project"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
