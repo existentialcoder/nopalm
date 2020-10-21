@@ -9,7 +9,7 @@ const App = () => {
         const response = await Dataservice.getInstalledPackages();
 
         console.log('RESPONSE: ', response);
-      } catch(er) {
+      } catch (er) {
         console.error('ERR: ', er);
       }
     };
@@ -20,6 +20,6 @@ const App = () => {
       NAPAALM client
     </div>
   );
-}
+};
 
 export default App;
