@@ -1,5 +1,5 @@
 {
-  "name": "napaalm",
+  "name": "nopalm",
   "version": "1.0.0",
   "description": "Node Projects Manager - User Interface to manage your node projects",
   "main": "lib/index.js",
@@ -8,9 +8,6 @@
     "express": "^4.17.1"
   },
   "devDependencies": {
-    "eslint": "^7.11.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.22.0",
     "husky": "^4.3.0",
     "lint-staged": "^10.4.2",
     "nodemon": "^2.0.4"
@@ -18,8 +15,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cp -ar client/build/. public/ && node ./",
-    "dev": "NODE_ENV=development node ./",
-    "lint": "eslint -f table . --fix"
+    "dev": "NODE_ENV=development nodemon ./"
   },
   "husky": {
     "hooks": {
