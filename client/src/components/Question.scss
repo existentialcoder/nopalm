@@ -1,0 +1,12 @@
+.question-container {
+    display: flex;
+    // width: 120%;
+    justify-content: space-between;
+    .question {
+        display: flex;
+        font-weight: 600;
+        font-size: 18px;
+        margin-right: 20px;
+        margin-bottom: 25px;
+    }
+}

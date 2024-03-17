@@ -105,3 +105,5 @@ dist
 
 # React client - git ignore
 /public
+
+client/src/assets/*.identifier

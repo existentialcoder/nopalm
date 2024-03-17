@@ -35,10 +35,10 @@ function getMenuItem(
 ): MenuItem {
   return {
     key,
-    icon, 
+    icon,
     children,
     label,
-  } as MenuItem;  
+  } as MenuItem;
 }
 
 const items: MenuItem[] = [
@@ -59,40 +59,54 @@ const App: React.FC = () => {
     const currentPath = window.location.pathname.slice(1);
 
     const pathToSet = currentPath === '' ? 'project_details' : currentPath;
-  
+
     setCurrentActiveRoute(pathToSet);
   }, []);
 
   return (
-      <Layout style={{ minHeight: '100vh' }}>
-      <Sider  collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+    <Layout hasSider style={{ minHeight: '100vh', maxHeight: '100vh', overflow: 'scroll' }}>
+      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}
+        style={{ overflow: 'auto', height: '100vh', position: 'sticky', top: 0, left: 0 }}>
         <Menu style={{ minHeight: '92vh' }} defaultSelectedKeys={['project_details']}
-        selectedKeys={[currentActiveRoute]} 
-        onSelect={(item) => setCurrentActiveRoute(item.key)}
-        items={items} />
+          selectedKeys={[currentActiveRoute]}
+          onSelect={(item) => setCurrentActiveRoute(item.key)}
+          items={items} />
       </Sider>
       <Layout style={{ minHeight: '100vh' }}>
-        <Header style={{ display: 'flex' }}>
+        <Header style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+        }}>
           <NopalmLogo includeTitle />
         </Header>
-        <Content style={{ margin: '0 10px' }}>
+        <Content style={{ margin: '0 10px', padding: 0, overflow: 'initial' }}>
           <div
             style={{
               padding: 24,
               borderRadius: borderRadiusLG,
             }}
           >
-            { routesToPages[currentActiveRoute] }
+            {routesToPages[currentActiveRoute]}
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
+        {/* <Footer style={{
+          position: 'fixed',
+          // left: 200,
+          bottom: 0,
+          width: '100%',
+          textAlign: 'center'
+        }}>
           <div className="footer-container">
             <div className='copyright'>
               ©{new Date().getFullYear()} | Created by Shravan Balasubramanian | Contact
             </div>
             <div className="contact"> <SocialMediaLinks /> </div>
           </div>
-        </Footer>
+        </Footer> */}
       </Layout>
     </Layout>
   );
