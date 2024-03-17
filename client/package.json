@@ -12,6 +12,7 @@
   "dependencies": {
     "antd": "^5.12.7",
     "autoprefixer": "^10.4.16",
+    "compare-versions": "^6.1.0",
     "postcss": "^8.4.32",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

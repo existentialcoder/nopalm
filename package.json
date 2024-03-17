@@ -4,8 +4,10 @@
   "description": "Node Projects Manager - User Interface to manage your node projects",
   "main": "lib/index.js",
   "dependencies": {
+    "axios": "^1.6.8",
     "cors": "^2.8.5",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "website-logo": "^2.0.0"
   },
   "devDependencies": {
     "husky": "^4.3.0",
