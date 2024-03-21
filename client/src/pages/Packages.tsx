@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import { Flex, Button } from 'antd';
+import { Flex, Button, Modal } from 'antd';
 
 import './Packages.scss';
 
@@ -8,62 +8,36 @@ import PackageCard from '../components/PackageCard';
 
 import Dataservice from '../api/Dataservice';
 
-import { InstalledPackageProps } from "../helpers/types";
+import { InstalledPackageProps, PackageExplorerRef, ProjectDetailsProps } from "../helpers/types";
 
-const dummyPackages: InstalledPackageProps[] = [
-    {
-        name: 'dummy',
-        installed_version: '1.0.0',
-        latest_version: '1.0.0',
-        description: 'dummt',
-        homepage: 'dummy',
-        logo: 'dummy',
-        is_dev: false
-    },
-    {
-        name: 'dummy1',
-        installed_version: '1.0.0',
-        latest_version: '1.0.0',
-        description: 'dummt',
-        homepage: 'dummy',
-        logo: 'dummy',
-        is_dev: false
-    },
-    {
-        name: 'dummy2',
-        installed_version: '1.0.0',
-        latest_version: '1.0.0',
-        description: 'dummt',
-        homepage: 'dummy',
-        logo: 'dummy',
-        is_dev: false
-    },
-    {
-        name: 'dummy3',
-        installed_version: '1.0.0',
-        latest_version: '1.0.0',
-        description: 'dummt',
-        homepage: 'dummy',
-        logo: 'dummy',
-        is_dev: false
-    }
-];
+import PackageExplorer from '../components/PackageExplorer';
+
+import { dummyPackages } from "../helpers/constants";
 
 const Packages: React.FC = () => {
     const [installedPackages, setInstalledPackages] = useState<InstalledPackageProps[]>([]);
+
+    const [projectDetails, setProjectDetails] = useState<ProjectDetailsProps>({});
 
     const [packagesLoading, setPackagesLoading] = useState(true);
 
     const [emptyPackageList, setEmptyPackageList] = useState(false);
 
+    const [isPackagesSaveLoading, setIsPackagesSaveLoading] = useState(false);
+
+    const [isModalOpen, setModalOpen] = useState(false);
+
+    const packageExplorerRef = useRef<PackageExplorerRef>(null);
 
     async function setInitialFlags() {
+        const projectDetails = await Dataservice.getProjectDetails();
         const packages = await Dataservice.getInstalledPackages();
 
         if (packages.length === 0) {
             setEmptyPackageList(true);
         }
 
+        setProjectDetails(projectDetails);
         setInstalledPackages(packages);
         setPackagesLoading(false);
     }
@@ -73,20 +47,42 @@ const Packages: React.FC = () => {
     }, []);
 
     const reRenderPackages = () => {
-        setTimeout(() => setInitialFlags(), 2000);
+        setTimeout(() => setInitialFlags(), 100);
     };
 
     return (
         <div className="packages-container">
             <div className="title-container">
                 Installed Packages
+                <Button type={"primary"} onClick={() => setModalOpen(true)}>
+                    Add more
+                </Button>
             </div>
+            <Modal title="Package Explorer"
+                open={isModalOpen} width={1000} bodyStyle={{ minHeight: 430, overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}
+                footer={[
+                    <Button key="revert" disabled={isPackagesSaveLoading} type="default" onClick={() => packageExplorerRef.current?.onRevertClickHandler()}>
+                        Revert
+                    </Button>,
+                    <Button key="save" type="primary" loading={isPackagesSaveLoading}
+                    onClick={() => { setIsPackagesSaveLoading(true); packageExplorerRef.current?.onSaveClickHandler() }}>
+                        Save
+                    </Button>
+                ]}
+                onCancel={() => { setModalOpen(false); packageExplorerRef.current?.onCancelClickHandler() }}>
+                <PackageExplorer
+                    ref={packageExplorerRef}
+                    reRenderPackages={reRenderPackages}
+                    setIsPackagesSaveLoading={setIsPackagesSaveLoading}
+                    projectName={projectDetails.name}
+                    projectDescription={projectDetails.description} />
+            </Modal>
             <div className="packages-list">
                 {installedPackages.length === 0 && emptyPackageList && (
                     <div className="no-packages-container"> No packages installed.
                         <div className="consent-btn-group">
                             <Flex gap="medium" wrap="wrap" justify="center" style={{ margin: "10px" }}>
-                                <Button type={"primary"} onClick={() => {}}>
+                                <Button type={"primary"} onClick={() => { }}>
                                     Explore
                                 </Button>
                             </Flex>
@@ -99,10 +95,12 @@ const Packages: React.FC = () => {
                             loading={packagesLoading}
                             key={installedPackage.name}
                             package={installedPackage}
+                            installed={true}
+                            versions={[]}
+                            modifyListOfPackagesToInstall={() => { }}
                         />
                     ))}
             </div>
-
         </div>
     )
 };

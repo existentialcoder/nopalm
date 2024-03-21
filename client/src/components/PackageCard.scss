@@ -1,8 +1,21 @@
 .card-main-container {
     display: flex;
     justify-content: space-between;
-
+    .upgradable-tag {
+        height: 25px;
+        margin-left: 60%;
+        margin-top: 43px;
+    }
     .card-actions-container {
-          width: 65px;
+          width: 130px;
+          .toggle-select-buttons {
+            display: flex;
+          }
+          &.installed {
+            width: 65px;
+          }
+          .action-buttons {
+            display: flex;
+          }
     }
 }

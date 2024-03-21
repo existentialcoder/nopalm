@@ -21,7 +21,7 @@ const LightTheme: ThemeConfig = {
   }
 };
 
-const isDark = false;
+const isDark = true;
 
 const DarkToken = getDesignToken(DarkTheme);
 

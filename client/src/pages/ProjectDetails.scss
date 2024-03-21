@@ -1,6 +1,15 @@
 .project-details-container {
-    text-align: center;
+    .project-details-title {
+        font-size: 22px;
+        font-weight: 600;
+    }
     height: 100%;
+    .new-project-consent {
+        text-align: center;
+        .new-project-consent-title {
+            font-size: 18px;
+        }
+    }
     .new-project-container {
         .new-project-basic-details-container {
             padding: 3% 15%;

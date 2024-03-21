@@ -147,8 +147,10 @@ const ProjectDetails: React.FC = () => {
     const NewProjectConsentForm = () => {
         return (
             <div className="new-project-consent">
+                <div className="new-project-consent-title">
                 Node project is not found in the current directory!
                 Click on create new project to start spinning one from scratch
+                </div>
                 <div className="consent-btn-group">
                     <Flex gap="medium" wrap="wrap" justify="center" style={{ margin: "10px" }}>
                         <Button type={"primary"} onClick={() => setConsentedForNewProject(true)}>
@@ -207,6 +209,9 @@ const ProjectDetails: React.FC = () => {
 
     return (
         <div className="project-details-container">
+            <div className="project-details-title">
+                Project Details
+            </div>
             {isNewProject}
             {
                 isNewProject && !consentedForNewProject ? <NewProjectConsentForm /> : ''
