@@ -1,4 +1,4 @@
-import { QuestionObject  } from "./types";
+import { InstalledPackageProps, QuestionObject  } from "./types";
 
 const linter =  {
     question_name: 'linter',
@@ -256,6 +256,25 @@ const newProjectQuestions: QuestionObject = {
     ],
 };
 
+const dummyPackage: InstalledPackageProps =  {
+    name: 'dummy',
+    installed_version: '1.0.0',
+    latest_version: '1.0.0',
+    description: 'dummt',
+    homepage: 'dummy',
+    logo: 'dummy',
+    is_dev: false,
+    versions: []
+};
+
+const dummyPackages = [0, 1, 2, 3, 4, 5].map(index => (
+    {
+        ...dummyPackage,
+        name: `${dummyPackage}${index}`
+    }
+));
+
 export {
-    newProjectQuestions
+    newProjectQuestions,
+    dummyPackages
 };

@@ -4,9 +4,9 @@ const API_BASE_URL = 'http://localhost:8001/api';
 // Actual
 // const API_BASE_URL = '/api'
 
-import { InstalledPackageProps } from '../helpers/types';
+import { InstalledPackageProps, ProjectDetailsProps } from '../helpers/types';
 
-async function getProjectDetails(): Promise<Object> {
+async function getProjectDetails(): Promise<ProjectDetailsProps> {
     const urlPath = 'project';
 
     const result = await fetch(`${API_BASE_URL}/${urlPath}`);
@@ -26,8 +26,18 @@ async function getInstalledPackages(): Promise<InstalledPackageProps[]> {
     return packages;
 }
 
-async function installPackage(packageName: string, versionToInstall: string) {
-    const urlPath = 'packages/installed';
+async function searchPackages(q: string) {
+    const urlPath = 'packages/search';
+
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?q=${q}`);
+
+    const { packages } = await result.json();
+
+    return packages;
+}
+
+async function installPackage(packageName: string, versionToInstall: string, isDev: boolean) {
+    const urlPath = 'packages/install';
 
     const result = await fetch(`${API_BASE_URL}/${urlPath}`, {
         method: 'POST',
@@ -37,7 +47,8 @@ async function installPackage(packageName: string, versionToInstall: string) {
         body: JSON.stringify({
             package: {
                 name: packageName,
-                version: versionToInstall
+                version: versionToInstall,
+                is_dev: isDev
             }
         })
     });
@@ -45,8 +56,26 @@ async function installPackage(packageName: string, versionToInstall: string) {
     return result;
 }
 
-async function upgradePackage(packageName: string, versionToUpdate: string) {
+async function updatePackage(packageName: string, versionToUpdate: string | undefined, isDev: boolean | undefined) {
     const urlPath = 'packages/upgrade';
+
+    const packageDetailsToUpdate: {
+        name: string,
+        version?: string,
+        latest?: boolean,
+        isDev?: boolean
+    } = {
+        name: packageName
+    };
+
+    if (versionToUpdate.length > 0) {
+        packageDetailsToUpdate.version = versionToUpdate;
+        packageDetailsToUpdate.latest = !!packageDetailsToUpdate.latest
+    }
+
+    if (isDev !== undefined) {
+        packageDetailsToUpdate.isDev = isDev;
+    }
 
     const result = await fetch(`${API_BASE_URL}/${urlPath}`, {
         method: 'PUT',
@@ -54,11 +83,7 @@ async function upgradePackage(packageName: string, versionToUpdate: string) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            package: {
-                name: packageName,
-                version: versionToUpdate,
-                latest: true  
-            }
+            package: packageDetailsToUpdate
         })
     });
 
@@ -84,8 +109,9 @@ async function uninstallPackage(packageName: string) {
 const Dataservice = {
     getProjectDetails,
     getInstalledPackages,
+    searchPackages,
     installPackage,
-    upgradePackage,
+    updatePackage,
     uninstallPackage
 };
 
