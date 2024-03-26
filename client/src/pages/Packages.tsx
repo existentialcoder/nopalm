@@ -8,13 +8,13 @@ import PackageCard from '../components/PackageCard';
 
 import Dataservice from '../api/Dataservice';
 
-import { InstalledPackageProps, PackageExplorerRef, ProjectDetailsProps } from "../helpers/types";
+import { InstalledPackageProps, PackageExplorerRef, ProjectDetailsProps, SettingsResultProps } from "../helpers/types";
 
 import PackageExplorer from '../components/PackageExplorer';
 
 import { dummyPackages } from "../helpers/constants";
 
-const Packages: React.FC = () => {
+const Packages: React.FC<{ settings: SettingsResultProps }> = (props) => {
     const [installedPackages, setInstalledPackages] = useState<InstalledPackageProps[]>([]);
 
     const [projectDetails, setProjectDetails] = useState<ProjectDetailsProps>({});
@@ -97,6 +97,7 @@ const Packages: React.FC = () => {
                             package={installedPackage}
                             installed={true}
                             versions={[]}
+                            accentColor={props.settings.appearance.accent_color}
                             modifyListOfPackagesToInstall={() => { }}
                         />
                     ))}

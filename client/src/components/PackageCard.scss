@@ -1,21 +1,36 @@
 .card-main-container {
-    display: flex;
-    justify-content: space-between;
-    .upgradable-tag {
-        height: 25px;
-        margin-left: 60%;
-        margin-top: 43px;
+  display: flex;
+  justify-content: space-between;
+  transition: text-decoration .3s ease-in-out;
+  .package-link {
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 5px;
     }
-    .card-actions-container {
-          width: 130px;
-          .toggle-select-buttons {
-            display: flex;
-          }
-          &.installed {
-            width: 65px;
-          }
-          .action-buttons {
-            display: flex;
-          }
+  }
+
+  .upgradable-tag {
+    height: 25px;
+    right: 6.5rem;
+    position: absolute;
+    top: 4.1rem;
+    width: 110px;
+    text-align: center;
+  }
+
+  .card-actions-container {
+    width: 130px;
+
+    .toggle-select-buttons {
+      display: flex;
     }
+
+    &.installed {
+      width: 65px;
+    }
+
+    .action-buttons {
+      display: flex;
+    }
+  }
 }

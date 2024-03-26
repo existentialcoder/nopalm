@@ -62,12 +62,22 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
         let clonedList = Array.from(listOfPackagesToInstall);
 
         if (selectedVersionToInstall) {
-            // addition
-            clonedList.push({
-                name: packageName,
-                version_to_install: selectedVersionToInstall,
-                is_dev: isDevPackage
-            });
+            const alreadyExistsIndex = clonedList.findIndex(pkg => pkg.name === packageName);
+            if (alreadyExistsIndex >= 0) {
+                // updation
+                clonedList[alreadyExistsIndex] = {
+                    name: packageName,
+                    version_to_install: selectedVersionToInstall,
+                    is_dev: isDevPackage
+                };
+            } else {
+                // addition
+                clonedList.push({
+                    name: packageName,
+                    version_to_install: selectedVersionToInstall,
+                    is_dev: isDevPackage
+                });
+            }
         } else {
             // removal
             clonedList = clonedList.filter(pkg => pkg.name !== packageName);

@@ -107,3 +107,5 @@ dist
 /public
 
 client/src/assets/*.identifier
+
+.nopalm

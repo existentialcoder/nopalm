@@ -3,18 +3,22 @@
   "version": "1.0.0",
   "description": "Node Projects Manager - User Interface to manage your node projects",
   "main": "lib/index.js",
+  "bin": {
+    "nopalm": "./lib/index.js"
+  },
   "dependencies": {
     "axios": "^1.6.8",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "website-logo": "^2.0.0"
+    "website-logo": "^2.0.0",
+    "winston": "^3.12.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cp -ar client/build/. public/ && node ./",
+    "start": "cp -ar client/build/. public/ && node ./lib/",
     "dev": "NODE_ENV=development nodemon ./"
   },
   "author": "Shravan Balasubramanian <shravanayyappa@gmail.com>",

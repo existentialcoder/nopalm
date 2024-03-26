@@ -17,14 +17,16 @@ import NopalmLogo from './logos/NopalmLogo';
 
 import SocialMediaLinks from './components/SocialMediaLinks';
 
+import { AppProps } from './helpers/types';
+
 const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 const routesToPages: any = {
-  project_details: <ProjectDetails />,
-  packages: <Packages />,
-  settings: <Settings />,
+  project_details: (settings) => <ProjectDetails settings={settings} />,
+  packages: (settings) => <Packages settings={settings} />,
+  settings: (settings, reflectUpdatedUserSettings) => <Settings settings={settings}  reflectUpdatedUserSettings={reflectUpdatedUserSettings}/>,
 };
 
 function getMenuItem(
@@ -47,11 +49,9 @@ const items: MenuItem[] = [
   getMenuItem('Settings', 'settings', <Link to='/settings'><SettingOutlined /></Link>),
 ];
 
-const App: React.FC = () => {
+const App: React.FC<AppProps> = (props) => {
   const [collapsed, setCollapsed] = useState(true);
-  const {
-    token: { borderRadiusLG }
-  } = theme.useToken();
+  const { token } = theme.useToken();
 
   const [currentActiveRoute, setCurrentActiveRoute] = useState('project_details');
 
@@ -80,6 +80,7 @@ const App: React.FC = () => {
           width: '100%',
           display: 'flex',
           alignItems: 'center',
+          background: token.colorBgBase
         }}>
           <NopalmLogo includeTitle />
         </Header>
@@ -87,10 +88,10 @@ const App: React.FC = () => {
           <div
             style={{
               padding: 24,
-              borderRadius: borderRadiusLG,
+              borderRadius: token.borderRadiusLG,
             }}
           >
-            {routesToPages[currentActiveRoute]}
+            {routesToPages[currentActiveRoute](props.settings, props.reflectUpdatedUserSettings)}
           </div>
         </Content>
         {/* <Footer style={{

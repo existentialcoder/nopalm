@@ -1,45 +1,102 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App.tsx'
-import './index.scss'
+import React, { useState, useEffect } from 'react';
 
-import { ConfigProvider, ThemeConfig, theme } from 'antd';
+import ReactDOM from 'react-dom/client';
 
-const { defaultAlgorithm, darkAlgorithm, getDesignToken  } = theme;
+import { BrowserRouter } from 'react-router-dom';
 
-const DarkTheme: ThemeConfig = {
-  algorithm: darkAlgorithm,
-  token: {
-    // add here custom colors
-  }
+import * as colors from '@ant-design/colors';
+
+import App from './App.tsx';
+
+import './index.scss';
+
+import { ConfigProvider, ThemeConfig, Skeleton, theme } from 'antd';
+
+import Dataservice from './api/Dataservice.ts';
+
+const { defaultAlgorithm, darkAlgorithm, getDesignToken } = theme;
+
+const Main: React.FC = () => {
+  const [globalSettings, setGlobalSettings] = useState('');
+
+  const [isDark, setIsDark] = useState<boolean>(false);
+
+  const [selectedPrimaryColor, setSelectedPrimaryColor] = useState<string>('');
+
+  const [isMainLoading, setIsMainLoading] = useState<boolean>(false);
+
+  const DarkTheme: ThemeConfig = {
+    algorithm: darkAlgorithm,
+    token: {
+      // add here custom colors
+    }
+  };
+  const LightTheme: ThemeConfig = {
+    algorithm: defaultAlgorithm,
+    token: {
+      // add here custom colors
+    }
+  };
+
+  const DarkToken = getDesignToken(DarkTheme);
+
+  const LightToken = getDesignToken(LightTheme);
+
+  const [tokenSelected, setTokenSelected] = useState(LightToken);
+
+  const fetchGlobalSettings = async () => {
+    setIsMainLoading(true);
+
+    const settings = await Dataservice.getSettings('global');
+
+    setGlobalSettings(settings);
+
+    const darkModeEnabled =
+      (settings.appearance.mode === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ||
+      settings.appearance.mode === 'dark';
+
+    setIsDark(darkModeEnabled);
+
+    const primaryColor = colors[settings.appearance.accent_color]?.primary || '';
+
+    setSelectedPrimaryColor(primaryColor);
+
+    setTokenSelected(isDark ? DarkToken : LightToken);
+
+    setIsMainLoading(false);
+  };
+
+  useEffect(() => {
+    fetchGlobalSettings();
+  }, []);
+
+  return (
+    <React.StrictMode>
+      <BrowserRouter>
+        <ConfigProvider theme={{
+          algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
+          components: {
+            Layout: {
+              siderBg: selectedPrimaryColor,
+              triggerBg: selectedPrimaryColor
+            }
+          },
+          token: {
+            colorPrimary: selectedPrimaryColor
+          }
+        }}>
+          <div style={{
+            color: tokenSelected.colorText,
+            background: tokenSelected.colorBgBase
+          }}>
+            <Skeleton loading={isMainLoading}>
+              <App settings={globalSettings} reflectUpdatedUserSettings={fetchGlobalSettings} />
+            </Skeleton>
+          </div>
+        </ConfigProvider>
+      </BrowserRouter>
+    </React.StrictMode >
+  )
 };
-const LightTheme: ThemeConfig = {
-  algorithm: defaultAlgorithm,
-  token: {
-    // add here custom colors
-  }
-};
 
-const isDark = true;
-
-const DarkToken = getDesignToken(DarkTheme);
-
-const LightToken = getDesignToken(LightTheme);
-
-const TokenSelected = isDark ? DarkToken : LightToken;
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-    <ConfigProvider theme={{
-      algorithm: isDark ? darkAlgorithm : defaultAlgorithm
-    }}> 
-      <div style={{
-        color: TokenSelected.colorText,
-        background: TokenSelected.colorBgBase
-      }}> <App /> </div>
-    </ConfigProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById('root')!).render(<Main />);
