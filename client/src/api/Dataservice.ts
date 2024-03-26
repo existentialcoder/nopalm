@@ -4,7 +4,7 @@ const API_BASE_URL = 'http://localhost:8001/api';
 // Actual
 // const API_BASE_URL = '/api'
 
-import { InstalledPackageProps, ProjectDetailsProps } from '../helpers/types';
+import { InstalledPackageProps, ProjectDetailsProps, SettingsResultProps } from '../helpers/types';
 
 async function getProjectDetails(): Promise<ProjectDetailsProps> {
     const urlPath = 'project';
@@ -53,6 +53,10 @@ async function installPackage(packageName: string, versionToInstall: string, isD
         })
     });
 
+    if (result.ok === false) {
+        throw result.json();
+    }
+
     return result;
 }
 
@@ -68,7 +72,7 @@ async function updatePackage(packageName: string, versionToUpdate: string | unde
         name: packageName
     };
 
-    if (versionToUpdate.length > 0) {
+    if (versionToUpdate && versionToUpdate.length > 0) {
         packageDetailsToUpdate.version = versionToUpdate;
         packageDetailsToUpdate.latest = !!packageDetailsToUpdate.latest
     }
@@ -87,6 +91,10 @@ async function updatePackage(packageName: string, versionToUpdate: string | unde
         })
     });
 
+    if (result.ok === false) {
+        throw result.json();
+    }
+
     return result;
 }
 
@@ -103,6 +111,38 @@ async function uninstallPackage(packageName: string) {
         })
     });
 
+    if (result.ok === false) {
+        throw result.json();
+    }
+
+    return result;
+}
+
+async function getSettings(scope: 'global' | 'local'): Promise<SettingsResultProps> {
+    const urlPath = 'settings';
+
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?scope=${scope}`);
+
+    const { settings } = await result.json();
+
+    return settings;
+}
+
+async function updateSettings(scope: 'global' | 'local', settingsToUpdate: SettingsResultProps) {
+    const urlPath = 'settings';
+
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?scope=${scope}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(settingsToUpdate)
+    });
+
+    if (result.ok === false) {
+        throw result.json();
+    }
+
     return result;
 }
 
@@ -112,7 +152,9 @@ const Dataservice = {
     searchPackages,
     installPackage,
     updatePackage,
-    uninstallPackage
+    uninstallPackage,
+    getSettings,
+    updateSettings
 };
 
 export default Dataservice;

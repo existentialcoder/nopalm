@@ -1,0 +1,16 @@
+.accent-color-picker-container {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 1fr);
+    gap: 5px;
+
+    .accent-color {
+        cursor: pointer;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        opacity: 75%;
+        box-sizing: border-box;
+        transition: border 0.2s ease;
+    }
+}

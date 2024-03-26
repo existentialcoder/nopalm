@@ -1,0 +1,33 @@
+.settings-container {   
+    .title-container {
+        display: flex;
+        font-size: 22px;
+        font-weight: 600;
+        justify-content: space-between;
+    }
+    .settings-box {
+        margin-top: 15px;
+        .setting-container {
+            text-align: center;
+            margin-bottom: 35px;
+            display: flex;
+            padding: 0 15%;
+            justify-content: space-between;
+            .setting-title {
+                font-size: 18px;
+            }
+            .appearance-choices {
+                display: flex;
+                .system-theme {
+                    margin-left: 20px;
+                }
+            }
+        }
+
+    }
+}
+
+.ant-collapse-content {
+    min-height: 150px;
+    max-height: 150px;
+}
