@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { BrowserRouter } from 'react-router-dom';
 
-import * as colors from '@ant-design/colors';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 
 import App from './App.tsx';
 
@@ -10,19 +10,25 @@ import './index.scss';
 
 import { ConfigProvider, ThemeConfig, Skeleton, theme } from 'antd';
 
-import Dataservice from './api/Dataservice.ts';
+import store from './store/store.ts';
+
+import { AppDispatch, RootState } from './store/store.ts';
+
+import { fetchAndSetGlobalSettings } from './store/slices/app.ts';
+
 
 const { defaultAlgorithm, darkAlgorithm, getDesignToken } = theme;
 
 const Main: React.FC = () => {
-  console.log(import.meta.env.REACT_APP_API_BASE_URL)
-  const [globalSettings, setGlobalSettings] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const globalSettings = useSelector((state: RootState) => state.app.globalSettings);
 
-  const [selectedPrimaryColor, setSelectedPrimaryColor] = useState<string>('');
+  const isMainLoading = useSelector((state: RootState) => state.app.isMainLoading);
 
-  const [isMainLoading, setIsMainLoading] = useState<boolean>(false);
+  const selectedPrimaryColor = useSelector((state: RootState) => state.app.selectedPrimaryColor);
+
+  const isDark = useSelector((state: RootState) => state.app.isDark);
 
   const DarkTheme: ThemeConfig = {
     algorithm: darkAlgorithm,
@@ -43,57 +49,37 @@ const Main: React.FC = () => {
 
   const [tokenSelected, setTokenSelected] = useState(LightToken);
 
-  const fetchGlobalSettings = async () => {
-    setIsMainLoading(true);
-
-    const settings = await Dataservice.getSettings('global');
-
-    setGlobalSettings(settings);
-
-    const darkModeEnabled =
-      (settings.appearance.mode === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ||
-      settings.appearance.mode === 'dark';
-
-    setIsDark(darkModeEnabled);
-
-    const primaryColor = colors[settings.appearance.accent_color]?.primary || '';
-
-    setSelectedPrimaryColor(primaryColor);
-
-    setTokenSelected(isDark ? DarkToken : LightToken);
-
-    setIsMainLoading(false);
-  };
-
   useEffect(() => {
-    fetchGlobalSettings();
+    dispatch(fetchAndSetGlobalSettings())
   }, []);
 
   return (
     <React.StrictMode>
-      <BrowserRouter>
-        <ConfigProvider theme={{
-          algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
-          components: {
-            Layout: {
-              siderBg: selectedPrimaryColor,
-              triggerBg: selectedPrimaryColor
+      <Provider store={store}>
+        <BrowserRouter>
+          <ConfigProvider theme={{
+            algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
+            components: {
+              Layout: {
+                siderBg: selectedPrimaryColor,
+                triggerBg: selectedPrimaryColor
+              }
+            },
+            token: {
+              colorPrimary: selectedPrimaryColor
             }
-          },
-          token: {
-            colorPrimary: selectedPrimaryColor
-          }
-        }}>
-          <div style={{
-            color: tokenSelected.colorText,
-            background: tokenSelected.colorBgBase
           }}>
-            <Skeleton loading={isMainLoading}>
-              <App settings={globalSettings} reflectUpdatedUserSettings={fetchGlobalSettings} />
-            </Skeleton>
-          </div>
-        </ConfigProvider>
-      </BrowserRouter>
+            <div style={{
+              color: tokenSelected.colorText,
+              background: tokenSelected.colorBgBase
+            }}>
+              <Skeleton loading={isMainLoading}>
+                <App settings={globalSettings} reflectUpdatedUserSettings={fetchGlobalSettings} />
+              </Skeleton>
+            </div>
+          </ConfigProvider>
+        </BrowserRouter>
+      </Provider>
     </React.StrictMode >
   )
 };

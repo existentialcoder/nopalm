@@ -1,8 +1,9 @@
-import { InstalledPackageProps, QuestionObject  } from "./types";
+import { FormFieldProps, InstalledPackageProps, QuestionObject } from "./types";
 
-const linter =  {
+const linter: QuestionObject = {
     question_name: 'linter',
     question: 'Choose a code linter',
+    type: 'select',
     options: [
         {
             value: 'eslint',
@@ -19,25 +20,27 @@ const linter =  {
     ]
 };
 
-const typeScriptInclusion =  {
+const typeScriptInclusion: QuestionObject = {
     question_name: 'ts_preference',
     question: 'Do you want to include Typescript?',
+    type: 'switch',
     logo_name: 'typescript',
     options: [
         {
-            value: 'yes',
-            label: 'Yes'
-        },
-        {
             value: 'no',
             label: 'No'
+        },
+        {
+            value: 'yes',
+            label: 'Yes'
         }
     ]
 };
 
-const unitTestingFramework =  {
+const unitTestingFramework: QuestionObject = {
     question_name: 'unit_test_framework',
     logo_name: '',
+    type: 'select',
     question: 'Choose a unit testing framework',
     options: [
         {
@@ -51,18 +54,145 @@ const unitTestingFramework =  {
     ]
 };
 
+const frontendQuestions: QuestionObject[] = [{
+    question_name: 'frontend_framework',
+    logo_name: 'web',
+    type: 'select',
+    question: 'Choose a frontend framework',
+    options: [
+        {
+            value: 'vue',
+            label: 'Vue JS'
+        },
+        {
+            value: 'react',
+            label: 'React'
+        },
+        {
+            value: 'svelte',
+            label: 'Svelte JS'
+        }
+    ]
+},
+{
+    question_name: 'frontend_build_tool',
+    question: 'Choose a build tool',
+    type: 'select',
+    logo_name: 'frontend_build_tool',
+    options: [
+        {
+            value: 'vite',
+            label: 'Vite'
+        },
+        {
+            value: 'webpack',
+            label: 'Webpack'
+        },
+        {
+            value: 'rollup',
+            label: 'Rollup'
+        },
+        {
+            value: 'snowpack',
+            label: 'Snowpack'
+        }
+    ]
+}];
+
+const backendQuestions: QuestionObject[] = [{
+    question_name: 'web_server_framework',
+    question: 'Choose a web server framework',
+    type: 'select',
+    options: [
+        {
+            value: 'express',
+            label: 'Express JS'
+        },
+        {
+            value: 'fastify',
+            label: 'Fastify'
+        },
+        {
+            value: 'koa',
+            label: 'Koa'
+        },
+        {
+            value: 'hapi',
+            label: 'Hapi'
+        },
+        {
+            value: 'derby_js',
+            label: 'Derby JS'
+        }
+    ]
+},
+{
+    question_name: 'database',
+    question: 'Choose a database',
+    type: 'select',
+    options: [
+        {
+            value: 'mysql',
+            label: 'Mysql'
+        },
+        {
+            value: 'postgresql',
+            label: 'PostgreSQL'
+        },
+        {
+            value: 'mongodb',
+            label: 'MongoDB'
+        }
+    ]
+},
+{
+    question_name: 'orm',
+    question: 'Choose an ORM',
+    type: 'select',
+    options: [
+        {
+            value: 'sequelize',
+            label: 'Sequelize'
+        },
+        {
+            value: 'umzug',
+            label: 'Umzug'
+        },
+        {
+            value: 'mongoose',
+            label: 'Mongoose'
+        },
+        {
+            value: 'type_orm',
+            label: 'Type ORM'
+        },
+        {
+            value: 'prisma',
+            label: 'Prisma'
+        }
+    ]
+}];
+
 const newProjectQuestions: QuestionObject = {
     question_name: 'type_of_app',
     logo_name: 'nodejs',
     question: 'What project do you want to build with Node JS?',
+    tooltip_message: 'Skip or select none to initialize an empty project',
+    type: 'select',
     options: [
+        {
+            value: 'none',
+            label: 'None',
+            questions: []
+        },
         {
             value: 'cli',
             label: 'CLI Application',
             questions: [
                 {
                     question_name: 'cli_utility_package',
-                    question: 'Which CLI app utility package do you want to use app?',
+                    question: 'Which CLI app utility package do you want to use?',
+                    type: 'select',
                     logo_name: 'cli',
                     options: [
                         {
@@ -80,6 +210,10 @@ const newProjectQuestions: QuestionObject = {
                         {
                             value: 'caporal',
                             label: 'Caporal'
+                        },
+                        {
+                            value: 'meow',
+                            label: 'Meow'
                         }
                     ]
                 },
@@ -95,54 +229,14 @@ const newProjectQuestions: QuestionObject = {
                 {
                     question_name: 'type_of_web_app',
                     question: 'What kind of web application?',
+                    type: 'select',
                     logo_name: 'web',
                     options: [
                         {
                             value: 'frontend_only',
                             label: 'Frontend only',
                             questions: [
-                                {
-                                    question_name: 'frontend_framework',
-                                    logo_name: 'web',
-                                    question: 'Choose a frontend framework',
-                                    options: [
-                                        {
-                                            value: 'vue',
-                                            label: 'Vue JS'
-                                        },
-                                        {
-                                            value: 'react',
-                                            label: 'React'
-                                        },
-                                        {
-                                            value: 'svelte',
-                                            label: 'Svelte JS'
-                                        }
-                                    ]
-                                },
-                                {
-                                    question_name: 'frontend_build_tool',
-                                    question: 'Choose a build tool',
-                                    logo_name: 'frontend_build_tool',
-                                    options: [
-                                        {
-                                            value: 'vite',
-                                            label: 'Vite'
-                                        },
-                                        {
-                                            value: 'webpack',
-                                            label: 'Webpack'
-                                        },
-                                        {
-                                            value: 'rollup',
-                                            label: 'Rollup'
-                                        },
-                                        {
-                                            value: 'snowpack',
-                                            label: 'Snowpack'
-                                        }
-                                    ]
-                                },
+                                ...frontendQuestions,
                                 typeScriptInclusion,
                                 linter,
                                 unitTestingFramework
@@ -152,94 +246,7 @@ const newProjectQuestions: QuestionObject = {
                             value: 'backend_only',
                             label: 'Backend only',
                             questions: [
-                                {
-                                    question_name: 'web_server_framework',
-                                    question: 'Choose a node JS server framework',
-                                    options: [
-                                        {
-                                            value: 'express',
-                                            label: 'Express JS'
-                                        },
-                                        {
-                                            value: 'fastify',
-                                            label: 'Fastify'
-                                        },
-                                        {
-                                            value: 'koa',
-                                            label: 'Koa'
-                                        },
-                                        {
-                                            value: 'hapi',
-                                            label: 'Hapi'
-                                        },
-                                        {
-                                            value: 'derby_js',
-                                            label: 'Derby JS'
-                                        }
-                                    ]
-                                },
-                                {
-                                    question_name: 'database',
-                                    question: 'Choose a database',
-                                    options: [
-                                        {
-                                            value: 'mysql',
-                                            label: 'Mysql'
-                                        },
-                                        {
-                                            value: 'postgresql',
-                                            label: 'PostgreSQL'
-                                        },
-                                        {
-                                            value: 'mongodb',
-                                            label: 'MongoDB'
-                                        }
-                                    ]
-                                },
-                                {
-                                    question_name: 'orm',
-                                    question: 'Choose an ORM',
-                                    options: [
-                                        {
-                                            value: 'sequelize',
-                                            label: 'Sequelize'
-                                        },
-                                        {
-                                            value: 'umzug',
-                                            label: 'Umzug'
-                                        },
-                                        {
-                                            value: 'mongoose',
-                                            label: 'MongoDB'
-                                        },
-                                        {
-                                            value: 'type_orm',
-                                            label: 'MongoDB'
-                                        },
-                                        {
-                                            value: 'prisma',
-                                            label: 'Prisma'
-                                        }
-                                    ]
-                                },
-                                {
-                                    question_name: 'Database',
-                                    question: 'Choose a database',
-                                    options: [
-                                        {
-                                            value: 'mysql',
-                                            label: 'Mysql'
-                                        },
-                                        {
-                                            value: 'postgresql',
-                                            label: 'PostgreSQL'
-                                        },
-                                        {
-                                            value: 'mongodb',
-                                            label: 'MongoDB'
-                                        }
-                                    ]
-                                },
+                                ...backendQuestions,
                                 typeScriptInclusion,
                                 linter,
                                 unitTestingFramework
@@ -247,7 +254,14 @@ const newProjectQuestions: QuestionObject = {
                         },
                         {
                             value: 'fullstack',
-                            label: 'Full stack'
+                            label: 'Full stack',
+                            questions: [
+                                ...frontendQuestions,
+                                ...backendQuestions,
+                                typeScriptInclusion,
+                                linter,
+                                unitTestingFramework
+                            ]
                         },
                     ]
                 }
@@ -256,7 +270,7 @@ const newProjectQuestions: QuestionObject = {
     ],
 };
 
-const dummyPackage: InstalledPackageProps =  {
+const dummyPackage: InstalledPackageProps = {
     name: 'dummy',
     installed_version: '1.0.0',
     latest_version: '1.0.0',
@@ -274,7 +288,93 @@ const dummyPackages = [0, 1, 2, 3, 4, 5].map(index => (
     }
 ));
 
+
+const formFields: {
+    basic_meta_details: FormFieldProps[],
+    discoverability: FormFieldProps[],
+    ownership: FormFieldProps[]
+} = {
+    basic_meta_details: [
+        {
+            name: 'name',
+            label: 'Name',
+            placeholder: 'my_awesome_node_package',
+            type: 'input',
+            max_length: 214
+        },
+        {
+            name: 'description',
+            label: 'Description',
+            type: 'textarea',
+            placeholder: 'The awesome_node_package is meant to be just awesome'
+        },
+        {
+            name: 'private',
+            label: 'Private',
+            type: 'switch',
+            hint: 'A private package cannot be published to npm registry',
+            options: [
+                {
+                    value: 'no',
+                    label: 'No'
+                },
+                {
+                    value: 'yes',
+                    label: 'Yes'
+                }   
+            ]
+        }
+    ],
+    discoverability: [
+        {
+            name: 'keywords',
+            label: 'Keywords',
+            hint: 'This helps people discover your package as it\'s listed in npm search',
+            type: 'select',
+            placeholder: 'awesomeness, npm, node',
+            tags: true,
+            options: []
+        },
+        {
+            name: 'repository',
+            label: 'Repository url',
+            type: 'input',
+            addon_before: 'https://',
+            placeholder: 'github.com/john/my_awesome_node_package.git'
+        },
+        {
+            name: 'homepage',
+            label: 'Homepage',
+            type: 'input',
+            addon_before: 'https://',
+            placeholder: 'github.com/john/my_awesome_node_package/#readme'
+        },
+        {
+            name: 'bugs',
+            label: 'Bugs',
+            type: 'input',
+            addon_before: 'https://',
+            placeholder: 'github.com/john/my_awesome_node_package/issues'
+        }
+    ],
+    ownership: [
+        {
+            name: 'license',
+            label: 'License',
+            type: 'input',
+            placeholder: 'MIT'
+        },
+        {
+            name: 'author',
+            label: 'Author',
+            type: 'input',
+            placeholder: 'Barney Rubble <b@rubble.com> (http://barnyrubble.tumblr.com/)'
+        }
+    ]
+};
+
 export {
     newProjectQuestions,
-    dummyPackages
+    dummyPackages,
+    formFields
 };

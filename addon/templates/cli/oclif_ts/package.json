@@ -1,0 +1,22 @@
+{
+    "name": "greet-cli-oclif-ts",
+    "version": "1.0.0",
+    "description": "A simple CLI application to greet users",
+    "main": "dist/index.js",
+    "bin": {
+        "greet": "./dist/index.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "ts-node src/index.ts"
+    },
+    "author": "Your Name",
+    "license": "ISC",
+    "dependencies": {
+        "@oclif/command": "^1.8.0"
+    },
+    "devDependencies": {
+        "typescript": "^4.4.4",
+        "@types/node": "^16.11.6"
+    }
+}

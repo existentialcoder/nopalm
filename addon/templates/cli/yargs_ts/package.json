@@ -1,0 +1,24 @@
+{
+    "name": "greet-cli-yargs-ts",
+    "version": "1.0.0",
+    "description": "A simple CLI application to greet users",
+    "main": "dist/index.js",
+    "bin": {
+        "greet": "./dist/index.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "ts-node src/index.ts"
+    },
+    "author": "Your Name",
+    "license": "ISC",
+    "dependencies": {
+        "yargs": "^17.2.1"
+    },
+    "devDependencies": {
+        "typescript": "^4.4.4",
+        "ts-node": "^10.4.0",
+        "@types/node": "^16.11.6",
+        "@types/yargs": "^17.0.10"
+    }
+}

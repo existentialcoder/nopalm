@@ -1,0 +1,18 @@
+{
+    "name": "greet-cli-meow",
+    "version": "1.0.0",
+    "description": "A simple CLI application to greet users",
+    "main": "src/index.js",
+    "bin": {
+      "greet": "./src/index.js"
+    },
+    "scripts": {
+      "start": "node src/index.js"
+    },
+    "author": "Your Name",
+    "license": "ISC",
+    "dependencies": {
+      "meow": "^11.0.0"
+    }
+  }
+  
