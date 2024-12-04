@@ -2,14 +2,14 @@ const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
 import { InstalledPackageProps, ProjectDetailsProps, SettingsResultProps } from '../helpers/types';
 
-async function getProjectDetails(): Promise<ProjectDetailsProps> {
+async function getProjectDetails(): Promise<{ project: ProjectDetailsProps, isEmptyDir: boolean, defaults: object }> {
     const urlPath = 'project';
 
     const result = await fetch(`${API_BASE_URL}/${urlPath}`);
 
-    const { project } = await result.json();
+    const { project, is_empty_dir: isEmptyDir, defaults } = await result.json();
 
-    return project;
+    return { project, isEmptyDir, defaults };
 }
 
 async function getInstalledPackages(): Promise<InstalledPackageProps[]> {
@@ -142,6 +142,30 @@ async function updateSettings(scope: 'global' | 'local', settingsToUpdate: Setti
     return result;
 }
 
+async function createNewProject(projectDetails) {
+    const urlPath = 'project/new';
+
+    try {
+        const requestPromise = (await fetch(`${API_BASE_URL}/${urlPath}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: projectDetails
+        })).json();
+    
+        return requestPromise.then((res) => {
+            if (res.msg === 'Successfully created the project') {
+                return true;
+            }
+    
+            return false;
+        });
+    } catch (ex) {
+        return false;
+    }
+}
+
 const Dataservice = {
     getProjectDetails,
     getInstalledPackages,
@@ -150,7 +174,8 @@ const Dataservice = {
     updatePackage,
     uninstallPackage,
     getSettings,
-    updateSettings
+    updateSettings,
+    createNewProject
 };
 
 export default Dataservice;

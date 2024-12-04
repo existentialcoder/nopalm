@@ -1,0 +1,19 @@
+{
+  "name": "greet-cli",
+  "version": "1.0.0",
+  "description": "A simple CLI application to greet users",
+  "main": "dist/index.js",
+  "bin": {
+    "greet": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "typescript": "^5.4.5"
+  }
+}

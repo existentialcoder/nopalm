@@ -2,15 +2,25 @@
     .project-details-title {
         font-size: 22px;
         font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        position: sticky;
     }
+
     height: 100%;
+
     .new-project-consent {
+        margin: auto;
+        position: fixed;
         text-align: center;
-        .new-project-consent-title {
-            font-size: 18px;
-        }
+        top: 45%;
+        bottom: 0;
+        left: 0;
+        right: 0;
     }
+
     .new-project-container {
+        margin-top: 25px;
         .new-project-basic-details-container {
             padding: 3% 15%;
             display: flex;

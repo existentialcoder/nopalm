@@ -1,7 +1,7 @@
 {
   "name": "nopalm",
   "version": "1.0.0",
-  "description": "Node Projects Manager - User Interface to manage your node projects",
+  "description": "One stop graphical solution to create & manage your node projects end to end with rich UI",
   "main": "lib/index.js",
   "bin": {
     "nopalm": "./lib/index.js"
@@ -10,8 +10,10 @@
     "axios": "^1.6.8",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "fs-extra": "^11.2.0",
     "website-logo": "^2.0.0",
-    "winston": "^3.12.0"
+    "winston": "^3.12.0",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"

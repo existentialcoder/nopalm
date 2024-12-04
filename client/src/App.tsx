@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
+
 import { Link } from 'react-router-dom';
+
 import {
   ProjectDetails, Packages, Settings
 } from './pages';
+
 import {
   ProjectOutlined,
   RedEnvelopeOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
+
 import type { MenuProps } from 'antd';
+
 import { Layout, Menu, theme } from 'antd';
 
 import './App.scss';
@@ -19,16 +24,24 @@ import NopalmLogo from './logos/NopalmLogo';
 
 import { AppProps, SettingsResultProps } from './helpers/types';
 
+import { useDispatch, useSelector } from 'react-redux';
+
+import { AppDispatch, RootState } from './store/store';
+
+import { setCurrentActiveRoute } from './store/slices/app';
+
 const { Header, Content, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 const routesToPages: {
- [key: string]: (settings: SettingsResultProps, reflectUpdatedUserSettings?: () => void ) => JSX.Element
+  [key: string]: (settings: SettingsResultProps,
+    reflectUpdatedUserSettings?: () => void,
+    routeChangeHandler?: () => void) => JSX.Element
 } = {
   project_details: (settings) => <ProjectDetails settings={settings} />,
-  packages: (settings) => <Packages settings={settings} />,
-  settings: (settings, reflectUpdatedUserSettings) => <Settings settings={settings} reflectUpdatedUserSettings={reflectUpdatedUserSettings}/>,
+  packages: (settings, reflectUpdatedUserSettings, routeChangeHandler) => <Packages settings={settings} routeChangeHandler={routeChangeHandler} />,
+  settings: (settings, reflectUpdatedUserSettings) => <Settings settings={settings} reflectUpdatedUserSettings={reflectUpdatedUserSettings} />,
 };
 
 function getMenuItem(
@@ -53,16 +66,23 @@ const items: MenuItem[] = [
 
 const App: React.FC<AppProps> = (props) => {
   const [collapsed, setCollapsed] = useState(true);
+
   const { token } = theme.useToken();
 
-  const [currentActiveRoute, setCurrentActiveRoute] = useState('project_details');
+  const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
+  const currentActiveRoute = useSelector((state: RootState) => state.app.currentActiveRoute);
+
+  function routeChangeHandler() {
     const currentPath = window.location.pathname.slice(1);
 
     const pathToSet = currentPath === '' ? 'project_details' : currentPath;
 
-    setCurrentActiveRoute(pathToSet);
+    dispatch(setCurrentActiveRoute(pathToSet));
+  }
+
+  useEffect(() => {
+    routeChangeHandler();
   }, []);
 
   return (
@@ -71,7 +91,7 @@ const App: React.FC<AppProps> = (props) => {
         style={{ overflow: 'auto', height: '100vh', position: 'sticky', top: 0, left: 0 }}>
         <Menu style={{ minHeight: '92vh' }} defaultSelectedKeys={['project_details']}
           selectedKeys={[currentActiveRoute]}
-          onSelect={(item) => setCurrentActiveRoute(item.key)}
+          onSelect={(item) => dispatch(setCurrentActiveRoute(item.key))}
           items={items} />
       </Sider>
       <Layout style={{ minHeight: '100vh' }}>
@@ -93,7 +113,7 @@ const App: React.FC<AppProps> = (props) => {
               borderRadius: token.borderRadiusLG,
             }}
           >
-            {routesToPages[currentActiveRoute](props.settings, props.reflectUpdatedUserSettings)}
+            {routesToPages[currentActiveRoute](props.settings, props.reflectUpdatedUserSettings, routeChangeHandler)}
           </div>
         </Content>
         {/* <Footer style={{

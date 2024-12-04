@@ -143,7 +143,7 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
                             <Tooltip title={isDevPackage ? 'Toggle off to make it a regular dependency' : 'Toggle to make it a development dependency'}>
                                 <Switch
                                     disabled={!props.installed && !props.isPackageSelectedToInstall}
-                                    checkedChildren="Dev" unCheckedChildren="Dev"
+                                    checkedChildren='Dev' unCheckedChildren='Prod'
                                     loading={isDevDepToggleLoading}
                                     onChange={devDependencyHandler}
                                     checked={isDevPackage} ></Switch>
