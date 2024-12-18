@@ -8,10 +8,12 @@
 
 ## RATIONALE
 
-* **No**de **P**roject **M**anager sounded very close to **Nopalm**(also sounding similar to `Napalm`). Hence the name (and the logo)!
-* Having trouble in creating and managing multiple node projects during local development?
-* With `nopalm` you can create/scaffold a new project from a various defined presets, manage existing node project and its package dependencies efficiently
-* This project is heavily inspired from [Vue-UI](https://cli.vuejs.org/dev-guide/ui-api.html) and [NPM-GUI](https://www.npmjs.com/package/npm-gui) and tries to improve on these projects
+* Having trouble in creating and managing multiple Node.Js projects during local development? Prefer using user interfaces over CLIs for larger projects?
+* `Nopalm 🔥` is a one stop graphical solution to create and manage your local Node.Js projects end to end.
+* With nopalm you can create/scaffold any kind of new project using various pre-defined choices, manage existing node project and its package dependencies efficiently.
+* *Why the name?* **No**de **P**roject **M**anager sounded very close to **Nopalm** (also sounding similar to `Napalm`). Hence the name (and the branding)!
+* This project is heavily inspired from [Vue-UI](https://cli.vuejs.org/dev-guide/ui-api.html) and [NPM-GUI](https://www.npmjs.com/package/npm-gui) and "tries" to improve on these projects.
+* **Desired Future** : Premium features including gen-AI intelligence helping with the development, on cloud.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app)
 
@@ -22,11 +24,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     npm i -g nopalm
     cd /path/to/target_dir && nopalm
    ```
-* Use npx to save the trouble of installing as well. In an empty or node project directory, run
+* Alternatively, use npx to save the trouble of installing as well. In an empty or node project directory, run
     ```shell
     npx nopalm
     ```
-* Visit [http://localhost:8001](http://localhost:8001) to start managing your node project
+* Visit [http://localhost:8001](http://localhost:8001) to start managing your node project like a pro
 
 ## To run / develop locally
 
