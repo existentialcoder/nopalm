@@ -8,7 +8,7 @@
 
 ## RATIONALE
 
-* Having trouble in creating and managing multiple Node.Js projects during local development? Prefer using user interfaces over CLIs for larger projects?
+* Having trouble in creating and managing multiple Node.Js projects during local development? Prefer using user interfaces over CLIs for larger project management?
 * `Nopalm 🔥` is a one stop graphical solution to create and manage your local Node.Js projects end to end.
 * With nopalm you can create/scaffold any kind of new project using various pre-defined choices, manage existing node project and its package dependencies efficiently.
 * *Why the name?* **No**de **P**roject **M**anager sounded very close to **Nopalm** (also sounding similar to `Napalm`). Hence the name (and the branding)!
