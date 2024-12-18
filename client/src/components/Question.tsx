@@ -8,8 +8,6 @@ import { QuestionProps } from '../helpers/types';
 
 import './Question.scss';
 
-import BrandLogo from '../logos/BrandLogo';
-
 const Question: React.FC<QuestionProps> = ({ questionObj, answer, answerHandler }) => {
     const renderInputElBasedOnType = () => {
         switch (questionObj?.type) {
@@ -33,7 +31,6 @@ const Question: React.FC<QuestionProps> = ({ questionObj, answer, answerHandler 
     return (
         questionObj && <div className='question-container'>
             <div className='question'>
-                {/* <BrandLogo name={questionObj.logo_name} /> */}
                 {questionObj.question}
                 {
                     questionObj.tooltip_message && <div className='info-icon'>

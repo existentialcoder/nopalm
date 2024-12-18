@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 
-import { Collapse, Tooltip, Select, theme } from 'antd';
+import { Collapse, Tooltip, Select, theme, Checkbox, GetProp } from 'antd';
 
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
+
+import { useDispatch, useSelector } from 'react-redux';
 
 import { LaptopOutlined } from '@ant-design/icons';
 
@@ -10,203 +12,205 @@ import './Settings.scss';
 
 import AccentColorPicker from '../components/AccentColorPicker';
 
-import { SettingsResultProps, AppearanceModes, PackageManagers, LogLevels } from '../helpers/types';
+import { PackageManagers, LogLevels, SettingsResultProps, AccentColors, AppearanceModes } from '../helpers/types';
 
-import Dataservice from '../api/Dataservice';
+import { AppDispatch, RootState } from '../store/store';
 
-function darkModeEnabled(settings) {
-    return (settings.appearance.mode === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ||
-        settings.appearance.mode === 'dark';
-}
+import { fetchAndSetGlobalSettings, updateGlobalSettings } from '../store/slices/app';
 
-const Appearance = (props: { settings: SettingsResultProps, reflectUpdatedUserSettings: () => void }) => {
-    const [selectedAccentColor, setSelectedAccentColor] = useState<string>(props.settings.appearance.accent_color);
+const Settings: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
 
-    const { token } = theme.useToken();
+    const settings = useSelector((state: RootState) => state.app.globalSettings);
 
-    const [isDarkMode, toggleDarkMode] = useState(darkModeEnabled(props.settings));
+    const isDarkMode = useSelector((state: RootState) => state.app.isDark);
 
-    const [appearanceModeSelected, setAppearanceModeSelected] = useState<AppearanceModes>(props.settings.appearance.mode);
+    const selectedPrimaryColor = useSelector((state: RootState) => state.app.selectedPrimaryColor);
 
-    async function appearanceModeChangeHandler(input: boolean | 'system') {
-        if (input === 'system' && appearanceModeSelected === 'system') {
-            return;
+    const [collapseAllSettings, setCollapseAllSettings] = useState(false);
+
+    const appearanceModeSelected = settings.appearance.mode;
+
+    const selectedPackageManager = settings.preferences.package_manager;
+
+    const selectedLogLevel = settings.preferences.log_level;
+
+    const settingsUpdateOperations = async (settingsToUpdate: SettingsResultProps) => {
+        await dispatch(updateGlobalSettings(settingsToUpdate));
+
+        dispatch(fetchAndSetGlobalSettings());
+    };
+
+    const Appearance = () => {
+        const { token } = theme.useToken();
+
+        async function appearanceModeChangeHandler(input: boolean | 'system') {
+            if (input === 'system' && appearanceModeSelected === 'system') {
+                return;
+            }
+
+            const appearanceModeToBeUpdated = input === 'system' ? AppearanceModes.system : (input === true ? AppearanceModes.dark : AppearanceModes.light);
+
+            const settingsToUpdate = {
+                ...settings,
+                appearance: {
+                    ...settings.appearance,
+                    mode: appearanceModeToBeUpdated
+                }
+            };
+
+            await settingsUpdateOperations(settingsToUpdate);
         }
 
-        const appearanceModeToBeUpdated = input === 'system' ? 'system' : (input === true ? 'dark' : 'light');
+        async function handleAccentColorChange(accentColor: AccentColors) {
+            const settingsToUpdate = {
+                ...settings,
+                appearance: {
+                    ...settings.appearance,
+                    accent_color: accentColor
+                }
+            };
 
-        setAppearanceModeSelected(appearanceModeToBeUpdated);
-
-        if (input !== 'system') {
-            toggleDarkMode(input);
+            await settingsUpdateOperations(settingsToUpdate);
         }
 
-        const settingsToUpdate = {
-            ...props.settings
-        };
+        return (
+            <React.Fragment>
+                <div className='setting-container'>
+                    <div className='setting-title'>
+                        Choose the mode
+                    </div>
+                    <div className='appearance-choices'>
+                        <Tooltip title='Light / Dark mode'>
+                            <DarkModeSwitch
+                                checked={isDarkMode}
+                                onChange={appearanceModeChangeHandler}
+                                sunColor='#FDB813'
+                                moonColor={'#fff'}
+                                size={30}
+                            />
+                        </Tooltip>
+                        <Tooltip title='System default'>
+                            <div className='system-theme'>
+                                <LaptopOutlined
+                                    onClick={() => appearanceModeChangeHandler('system')}
+                                    style={{ fontSize: 30, color: appearanceModeSelected === 'system' ? token.colorPrimary : '' }} />
+                            </div>
+                        </Tooltip>
+                    </div>
+                </div>
 
-        settingsToUpdate.appearance.mode = appearanceModeToBeUpdated;
+                <div className='setting-container'>
+                    <div className='setting-title'>
+                        Choose the accent color
+                    </div>
+                    <div className='appearance-choices'>
+                        <Tooltip title='Ligth / Dark mode'>
+                            <AccentColorPicker
+                                onColorChange={handleAccentColorChange}
+                                selectedAccentColor={selectedPrimaryColor}
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            </React.Fragment>
+        )
+    };
 
-        setTimeout(async () => {
-            await Dataservice.updateSettings('global', settingsToUpdate);
+    const Preferences = () => {
+        async function packageManagerChangeHandler(input: PackageManagers) {
+            const settingsToUpdate = {
+                ...settings,
+                preferences: {
+                    ...settings.preferences,
+                    package_manager: input
+                }
+            };
 
-            props.reflectUpdatedUserSettings();
-        }, 100); // wait for one tenth a second for the toggle animation
-    }
+            await settingsUpdateOperations(settingsToUpdate);
+        }
 
-    async function handleAccentColorChange(accentColor: string) {
-        setSelectedAccentColor(accentColor);
+        async function logLevelChangeHandler(input: LogLevels) {
+            const settingsToUpdate = {
+                ...settings,
+                preferences: {
+                    ...settings.preferences,
+                    log_level: input
+                }
+            };
 
-        const settingsToUpdate = {
-            ...props.settings
-        };
+            await settingsUpdateOperations(settingsToUpdate);
+        }
 
-        settingsToUpdate.appearance.accent_color = accentColor;
+        return (
+            <React.Fragment>
+                <div className='setting-container'>
+                    <div className='setting-title'>
+                        Choose the preferred package manager
+                    </div>
+                    <div className='appearance-choices'>
+                        <Tooltip title='Applies for all the future projects'>
+                            <Select
+                                style={{ width: 90 }}
+                                defaultValue={selectedPackageManager}
+                                options={[PackageManagers.npm, PackageManagers.yarn]
+                                    .map(key => ({ label: key, value: key }))}
+                                onSelect={packageManagerChangeHandler}
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
 
-        await Dataservice.updateSettings('global', settingsToUpdate);
+                <div className='setting-container'>
+                    <div className='setting-title'>
+                        Choose the logging level
+                    </div>
+                    <div className='appearance-choices'>
+                        <Tooltip title='Restart once log level is changed to help in debugging'>
+                            <Select
+                                style={{ width: 90 }}
+                                defaultValue={selectedLogLevel}
+                                options={[
+                                    LogLevels.info, LogLevels.debug,
+                                    LogLevels.error, LogLevels.warn
+                                ].map(key => ({ label: key, value: key }))}
+                                onSelect={logLevelChangeHandler}
+                            />
+                        </Tooltip>
+                    </div>
+                </div>
+            </React.Fragment>
+        )
+    };
 
-        props.reflectUpdatedUserSettings();
-    }
+    const settingsSections = () => ([
+        {
+            key: 'appearance',
+            label: 'Appearance',
+            children: <Appearance />
+        },
+        {
+            key: 'project_preferences',
+            label: 'Project Preferences',
+            children: <Preferences />
+        }
+    ]);
+
+    const onCollapseCheckChange: GetProp<typeof Checkbox.Group, 'onChange'> = (checkedValues) => {
+        setCollapseAllSettings(checkedValues.target.checked);
+    };
 
     return (
-        <React.Fragment>
-            <div className='setting-container'>
-                <div className="setting-title">
-                    Choose the mode
-                </div>
-                <div className='appearance-choices'>
-                    <Tooltip title='Light / Dark mode'>
-                        <DarkModeSwitch
-                            checked={isDarkMode}
-                            onChange={appearanceModeChangeHandler}
-                            sunColor='#FDB813'
-                            moonColor={'#fff'}
-                            size={30}
-                        />
-                    </Tooltip>
-                    <Tooltip title='System default'>
-                        <div className='system-theme'>
-                            <LaptopOutlined
-                                onClick={() => appearanceModeChangeHandler('system')}
-                                style={{ fontSize: 30, color: appearanceModeSelected === 'system' ? token.colorPrimary : '' }} />
-                        </div>
-                    </Tooltip>
-                </div>
-            </div>
-
-            <div className='setting-container'>
-                <div className="setting-title">
-                    Choose the accent color
-                </div>
-                <div className='appearance-choices'>
-                    <Tooltip title='Ligth / Dark mode'>
-                        <AccentColorPicker
-                            onColorChange={handleAccentColorChange}
-                            selectedAccentColor={selectedAccentColor}
-                        />
-                    </Tooltip>
-                </div>
-            </div>
-        </React.Fragment>
-    )
-};
-
-const Preferences = (props: { settings: SettingsResultProps, reflectUpdatedUserSettings: () => void }) => {
-    const [selectedPackageManager, setSelectedPackageManager] = useState<PackageManagers>(props.settings.preferences.package_manager);
-
-    const [selectedLogLevel, setSelectedLogLevel] = useState<LogLevels>(props.settings.preferences.log_level);
-
-    async function packageManagerChangeHandler(input: PackageManagers) {
-        setSelectedPackageManager(input);
-
-        const settingsToUpdate = {
-            ...props.settings
-        };
-
-        settingsToUpdate.preferences.package_manager = input;
-
-        await Dataservice.updateSettings('global', settingsToUpdate);
-
-        props.reflectUpdatedUserSettings();
-    }
-
-    async function logLevelChangeHandler(input: LogLevels) {
-        setSelectedLogLevel(input);
-
-        const settingsToUpdate = {
-            ...props.settings
-        };
-
-        settingsToUpdate.preferences.log_level = input;
-
-        await Dataservice.updateSettings('global', settingsToUpdate);
-
-        props.reflectUpdatedUserSettings();
-    }
-
-    return (
-        <React.Fragment>
-            <div className='setting-container'>
-                <div className="setting-title">
-                    Choose the preferred package manager
-                </div>
-                <div className='appearance-choices'>
-                    <Tooltip title="Applies for all the future projects">
-                        <Select
-                            style={{ width: 90 }}
-                            defaultValue={selectedPackageManager}
-                            options={[PackageManagers.npm, PackageManagers.yarn]
-                                .map(key => ({ label: key, value: key }))}
-                            onSelect={packageManagerChangeHandler}
-                        />
-                    </Tooltip>
-                </div>
-            </div>
-
-            <div className='setting-container'>
-                <div className="setting-title">
-                    Choose the logging level
-                </div>
-                <div className='appearance-choices'>
-                    <Tooltip title="Restart once log level is changed to help in debugging">
-                        <Select
-                            style={{ width: 90 }}
-                            defaultValue={selectedLogLevel}
-                            options={[
-                                LogLevels.info, LogLevels.debug,
-                                LogLevels.error, LogLevels.warn
-                            ].map(key => ({ label: key, value: key }))}
-                            onSelect={logLevelChangeHandler}
-                        />
-                    </Tooltip>
-                </div>
-            </div>
-        </React.Fragment>
-    )
-};
-
-const settingsSections = ({ settings, reflectUpdatedUserSettings }) => ([
-    {
-        key: 'appearance',
-        label: 'Appearance',
-        children: <Appearance settings={settings} reflectUpdatedUserSettings={reflectUpdatedUserSettings} />
-    },
-    {
-        key: 'project_preferences',
-        label: 'Project Preferences',
-        children: <Preferences settings={settings} reflectUpdatedUserSettings={reflectUpdatedUserSettings} />
-    }
-]);
-
-const Settings: React.FC<{ settings: SettingsResultProps, reflectUpdatedUserSettings: () => void }> = (props) => {
-    return (
-        <div className="settings-container">
-            <div className="title-container">
+        <div className='settings-container'>
+            <div className='title-container'>
                 Settings
             </div>
+            <Checkbox style={{ marginTop: '15px' }} checked={collapseAllSettings} onChange={onCollapseCheckChange}>
+                Collapse all
+            </Checkbox>
             <div className='settings-box'>
-                <Collapse defaultActiveKey={['appearance', 'project_preferences']}
-                    items={settingsSections(props)} />
+                <Collapse activeKey={collapseAllSettings ? [] : ['appearance', 'project_preferences']}
+                    items={settingsSections()} />
             </div>
         </div>
     )

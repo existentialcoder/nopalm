@@ -8,42 +8,43 @@ import PackageCard from './PackageCard';
 
 import type { SearchProps } from 'antd/es/input/Search';
 
-import { PackageExplorerProps, PackageProps, PackageToInstallProps } from '../helpers/types';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { PackageExplorerProps, PackageProps } from '../helpers/types';
 
 import Dataservice from '../api/Dataservice';
 
 import { dummyPackages } from '../helpers/constants';
 
+import { AppDispatch, RootState } from '../store/store';
+
+import { useNotification } from './NotificationContext';
+
+import { setIsPackageSaveLoading, setListOfNewPackagesToInstall } from '../store/slices/packages';
+
 const { Search } = Input;
 
 const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: PackageExplorerProps, ref) => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { notify } = useNotification();
+    
     const [searchResults, setSearchResults] = useState<PackageProps[]>([]);
 
     const [searchResultsLoading, setSearchResultsLoading] = useState(false);
 
     const [searchClicked, setSearchClicked] = useState(false);
 
-    const [listOfPackagesToInstall, setListOfPackagesToInstall] = useState<PackageToInstallProps[]>([])
-
-    const [emptyPackageList, setEmptyPackageList] = useState(false);
+    const [emptySearchResult, setEmptySearchResult] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState('');
 
-    const [api, contextHolder] = notification.useNotification();
-
-    type NotificationType = 'success' | 'info' | 'warning' | 'error';
-
-    function notify(message: string, description: string, type: NotificationType) {
-        return api[type]({
-            message,
-            description
-        });
-    }
+    const listOfNewPackagesToInstall = useSelector((state: RootState) => state.package.listOfNewPackagesToInstall);
 
     async function callAndSetSearchResults(q: string) {
         const result = await Dataservice.searchPackages(q);
 
-        setEmptyPackageList(result.length === 0);
+        setEmptySearchResult(result.length === 0);
 
         setSearchResults(result);
     }
@@ -59,7 +60,7 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
     };
 
     function modifyListOfPackagesToInstall(packageName: string, selectedVersionToInstall?: string, isDevPackage?: boolean) {
-        let clonedList = Array.from(listOfPackagesToInstall);
+        let clonedList = Array.from(listOfNewPackagesToInstall);
 
         if (selectedVersionToInstall) {
             const alreadyExistsIndex = clonedList.findIndex(pkg => pkg.name === packageName);
@@ -83,28 +84,28 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
             clonedList = clonedList.filter(pkg => pkg.name !== packageName);
         }
 
-        return setListOfPackagesToInstall(clonedList);
+        dispatch(setListOfNewPackagesToInstall(clonedList));
     }
 
     const onSaveClickHandler = async () => {
-        await Promise.all(listOfPackagesToInstall.map(
+        await Promise.all(listOfNewPackagesToInstall.map(
             pkg => Dataservice.installPackage(pkg.name, pkg.version_to_install || '', pkg.is_dev || false))
         );
 
         notify('Installed Packages', 'Successfully installed list of packages', 'success');
-        setListOfPackagesToInstall([]);
-        await callAndSetSearchResults(searchQuery);
-        props.setIsPackagesSaveLoading(false);
+        dispatch(setListOfNewPackagesToInstall([]));
+        dispatch(setIsPackageSaveLoading(false));
+        setSearchQuery('')
     };
 
     const onRevertClickHandler = () => {
-        setListOfPackagesToInstall([]);
+        dispatch(setListOfNewPackagesToInstall([]));
     };
 
     const onCancelClickHandler = () => {
         // reset search query, search results and list of packages to install
         setSearchQuery('');
-        setListOfPackagesToInstall([]);
+        dispatch(setListOfNewPackagesToInstall([]));
         setSearchResults([]);
         setSearchResultsLoading(false);
         setSearchClicked(false);
@@ -119,16 +120,15 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
 
     return (
         <div className="package-explorer-container">
-            {contextHolder}
             <Space direction="vertical">
-                <Search placeholder="Search your package..."
-                    disabled={listOfPackagesToInstall.length > 0} onChange={e => setSearchQuery(e.target.value)}
+                <Search placeholder="Search your package..." value={searchQuery}
+                    disabled={listOfNewPackagesToInstall.length > 0} onChange={e => setSearchQuery(e.target.value)}
                     onSearch={onSearch} allowClear enterButton style={{ width: 950 }} />
             </Space>
             <div className="search-results-container">
                 {
                     searchClicked ?
-                        (searchResultsLoading && !emptyPackageList ? dummyPackages : searchResults).map(searchResult => (
+                        (searchResultsLoading && !emptySearchResult ? dummyPackages : searchResults).map(searchResult => (
                             <PackageCard
                                 reRenderPackages={() => { }}
                                 loading={searchResultsLoading}
@@ -136,7 +136,7 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
                                 package={searchResult}
                                 installed={false}
                                 versions={searchResult.versions}
-                                isPackageSelectedToInstall={listOfPackagesToInstall.map(({ name }) => name).includes(searchResult.name)}
+                                isPackageSelectedToInstall={listOfNewPackagesToInstall.map(({ name }) => name).includes(searchResult.name)}
                                 modifyListOfPackagesToInstall={modifyListOfPackagesToInstall}
                             />
                         )) : <div className="explore-more-message">
@@ -144,7 +144,7 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
                         </div>
                 }
                 {
-                    searchClicked && !searchResultsLoading && emptyPackageList &&
+                    searchClicked && !searchResultsLoading && emptySearchResult &&
                     <div className="explore-more-message">
                         No results found! Check your search query
                     </div>

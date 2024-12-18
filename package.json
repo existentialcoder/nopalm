@@ -1,7 +1,7 @@
 {
   "name": "nopalm",
   "version": "1.0.0",
-  "description": "One stop graphical solution to create & manage your node projects end to end with rich UI",
+  "description": "One stop graphical solution to create and manage your local Node.Js projects end to end.",
   "main": "lib/index.js",
   "bin": {
     "nopalm": "./lib/index.js"
@@ -18,11 +18,39 @@
   "devDependencies": {
     "nodemon": "^2.0.4"
   },
+  "keywords": [
+    "node",
+    "npm",
+    "cli",
+    "command-line",
+    "package-manager",
+    "dependency-management",
+    "nodejs",
+    "workspace-management",
+    "node-package-manager",
+    "node-project-management",
+    "node-project-scaffold",
+    "node-project-generator",
+    "graphical-tool",
+    "project-generator",
+    "ai-project-management",
+    "node-ai",
+    "yarn",
+    "node-developer-tool",
+    "node-client",
+    "client",
+    "dependencies",
+    "gui",
+    "npm-gui",
+    "node-gui",
+    "local-development"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cp -ar client/build/. public/ && node ./lib/",
-    "dev": "NODE_ENV=development nodemon ./"
+    "postinstall": "node ./lib/scripts/addon --methodToExecute='createCopiedAddonFolder'"
   },
+  "repository": "https://github.com/existentialcoder/nopalm.git",
   "author": "Shravan Balasubramanian <shravanayyappa@gmail.com>",
   "license": "ISC"
 }
