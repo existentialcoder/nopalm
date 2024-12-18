@@ -49,7 +49,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     npm run dev'
 * Alias the nopalm server
     ```shell
-    
+    echo 'alias lnopalm="node /path/to/nopalm_project"' >> ~/.zshrc
     ```
 * Run the server in an existing node project
     ```shell
