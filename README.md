@@ -13,7 +13,7 @@
 * With nopalm you can create/scaffold any kind of new project using various pre-defined choices, manage existing node project and its package dependencies efficiently.
 * *Why the name?* **No**de **P**roject **M**anager sounded very close to **Nopalm** (also sounding similar to `Napalm`). Hence the name (and the branding)!
 * This project is heavily inspired from [Vue-UI](https://cli.vuejs.org/dev-guide/ui-api.html) and [NPM-GUI](https://www.npmjs.com/package/npm-gui) and "tries" to improve on these projects.
-* **Desired Future** : Premium features including gen-AI intelligence helping with the development, on cloud.
+* *Desired Future?* Premium cloud and gen-AI features.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app)
 
@@ -49,14 +49,15 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     ```shell
     cd client
     npm run dev'
-* Alias the nopalm server
-    ```shell
-    echo 'alias lnopalm="node /path/to/nopalm_project"' >> ~/.zshrc
-    ```
 * Run the server in an existing node project
     ```shell
     cd /path/to/target_node_project
     npm run dev --prefix /path/to/nopalm
+    ```
+* Alternatively, alias the nopalm server and run
+    ```shell
+    echo 'alias lnopalm="node /path/to/nopalm_project"' >> ~/.zshrc
+    cd /path/to/target_node_project && lnopalm
     ```
 * Visit [https://localhost:3000](https://localhost:3000)
   **To run the production version**
