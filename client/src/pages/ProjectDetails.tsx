@@ -1,73 +1,75 @@
-import React, { useEffect, useMemo, useState } from "react";
-
-import Dataservice from '../api/Dataservice.ts';
+import React, { useEffect, useState } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
-
-import {
-    setIsNewProject,
-    setProjectDetails,
-    RootState,
-    AppDispatch,
-} from '../store';
 
 import NewProjectTour from '../components/NewProjectTour';
 
 import './ProjectDetails.scss';
 
-import { useLocation } from 'react-router-dom';
+import { Button, FormInstance } from 'antd';
 
-import { Button } from "antd";
+import { AppDispatch, RootState } from '../store/store';
 
+import { fetchAndSetProjectDetails, saveProjectDetails, setIsProjectSaveLoading, setNewProjectDetails, setShouldShowSaveButton } from '../store/slices/project';
 
-function useQuery() {
-    const { search } = useLocation();
+import { useNotification } from '../components/NotificationContext';
 
-    return useMemo(() => new URLSearchParams(search), [search]);
-}
+import ProjectDetailsForm from '../components/ProjectDetailsForm';
 
 const ProjectDetails: React.FC = () => {
-    const [isEmptyDir, setIsEmptyDir] = useState(false);
-    const [defaults, setDefaults] = useState({});
-    const [showSaveButton, setShowSaveButton] = useState(false);
-    const [saveClicked, setSaveClicked] = useState(false);
-    const [isSaveLoading, setIsSaveLoading] = useState(false);
+    const shouldShowSaveButton = useSelector((state: RootState) => state.project.shouldShowSaveButton);
+
+    const isProjectSaveLoading = useSelector((state: RootState) => state.project.isProjectSaveLoading);
+
+    const isNewProject = useSelector((state: RootState) => state.project.isNewProject);
+
+    const projectDetails = useSelector((state: RootState) => state.project.projectDetails);
+
+    const [projectDetailsFormInstances, setProjectDetailsFormInstances] = useState<FormInstance[]>([]);
+
+    const { notify } = useNotification();
 
     const dispatch = useDispatch<AppDispatch>();
-    const {
-        isNewProject,
-    } = useSelector((state: RootState) => state);
 
-    const newProjectTourStepChangeHandler = (stepIndex: number) => {
-        // Show Save button only for the second page in the new form
-        setShowSaveButton(stepIndex === 1);
-    };
+    async function projectSaveHandler() {
+        try {
+            await Promise.all(
+                projectDetailsFormInstances.map(formInstance => formInstance.validateFields())
+            );
+
+            dispatch(setIsProjectSaveLoading(true));
+
+            await dispatch(saveProjectDetails(notify));
+
+            if (isNewProject) {
+                dispatch(setNewProjectDetails({}));
+            }
+
+            dispatch(fetchAndSetProjectDetails());
+        } catch (ex) {
+            // no-op
+        }
+    }
 
     useEffect(() => {
-        async function setInitialFlags() {
-            const { project, isEmptyDir, defaults } = await Dataservice.getProjectDetails();
-
-            dispatch(setIsNewProject(Object.keys(project).length === 0));
-            dispatch(setProjectDetails(project));
-            setDefaults(defaults);
-            setIsEmptyDir(isEmptyDir);
-        }
-
-        setInitialFlags();
+        dispatch(setShouldShowSaveButton(false));
+        dispatch(fetchAndSetProjectDetails());
     }, []);
 
     return (
         <div className='project-details-container'>
             <div className='project-details-title'>
-                {isNewProject && isEmptyDir ? 'Create new project' : 'Project Details'}
+                {isNewProject && Object.keys(projectDetails).length === 0 ? 'Create new project' : 'Project Details'}
                 {
-                    (!isNewProject || showSaveButton) && <Button type={"primary"} loading={isSaveLoading} onClick={() => setSaveClicked(true)}>
-                        { isSaveLoading ? 'Saving' : 'Save' }
+                    (!isNewProject || shouldShowSaveButton) && <Button type={'primary'} loading={isProjectSaveLoading}
+                        onClick={projectSaveHandler}>
+                        {isProjectSaveLoading ? 'Saving' : 'Save'}
                     </Button>
                 }
             </div>
             {
-                isNewProject && <NewProjectTour />
+                isNewProject && Object.keys(projectDetails).length === 0 ? <NewProjectTour setFormInstances={setProjectDetailsFormInstances} />
+                : <ProjectDetailsForm setFormInstances={setProjectDetailsFormInstances} />
             }
         </div>
     )

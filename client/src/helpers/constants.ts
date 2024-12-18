@@ -176,7 +176,7 @@ const backendQuestions: QuestionObject[] = [{
 const newProjectQuestions: QuestionObject = {
     question_name: 'type_of_app',
     logo_name: 'nodejs',
-    question: 'What project do you want to build with Node JS?',
+    question: 'What specific project do you want to build with Node JS?',
     tooltip_message: 'Skip or select none to initialize an empty project',
     type: 'select',
     options: [
@@ -300,12 +300,14 @@ const formFields: {
             label: 'Name',
             placeholder: 'my_awesome_node_package',
             type: 'input',
-            max_length: 214
+            max_length: 214,
+            required: true
         },
         {
             name: 'description',
             label: 'Description',
             type: 'textarea',
+            required: true,
             placeholder: 'The awesome_node_package is meant to be just awesome'
         },
         {

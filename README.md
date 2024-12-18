@@ -8,11 +8,10 @@
 
 ## RATIONALE
 
-* **No**de **P**roject **M**anager sounded very close to **Nopalm**(also sounding similar to `Napalm` :)). Hence the name!
-* I always faced difficulties in searching a relevant package while working on a node project and heavily craved for an UI since coming back and forth between browser and terminal killed productivity
-* To solve this, I thought of developing <span style="color:#12344d; font-weight: bold">Nopalm (Node Project Manager)</span> with an exciting web user interface to search, install and uninstall packages from a single place
-* You can also scaffold a **new node project**
-* This project is heavily inspired from [Vue-UI](https://cli.vuejs.org/dev-guide/ui-api.html)
+* **No**de **P**roject **M**anager sounded very close to **Nopalm**(also sounding similar to `Napalm`). Hence the name (and the logo)!
+* Having trouble in creating and managing multiple node projects during local development?
+* With `nopalm` you can create/scaffold a new project from a various defined presets, manage existing node project and its package dependencies efficiently
+* This project is heavily inspired from [Vue-UI](https://cli.vuejs.org/dev-guide/ui-api.html) and [NPM-GUI](https://www.npmjs.com/package/npm-gui) and tries to improve on these projects
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app)
 
@@ -23,9 +22,13 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     npm i -g nopalm
     cd /path/to/target_dir && nopalm
    ```
+* Use npx to save the trouble of installing as well. In an empty or node project directory, run
+    ```shell
+    npx nopalm
+    ```
 * Visit [http://localhost:8001](http://localhost:8001) to start managing your node project
 
-## To run locally
+## To run / develop locally
 
 #### Pre installed requirements
 - **node > 10**
@@ -40,14 +43,14 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     npm i
     ```
 **To run the development version**
-* Add this **.env** file in the `/client` folder 
-    ```shell
-    echo "REACT_APP_API_BASE_URL='http://localhost:8001'" >> .env.development.local`
-    ```
 * Run the react client
     ```shell
     cd client
-    npm run start
+    npm run dev'
+* Alias the nopalm server
+    ```shell
+    
+    ```
 * Run the server in an existing node project
     ```shell
     cd /path/to/target_node_project

@@ -22,8 +22,6 @@ import NopalmLogo from './logos/NopalmLogo';
 
 // import SocialMediaLinks from './components/SocialMediaLinks';
 
-import { AppProps, SettingsResultProps } from './helpers/types';
-
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppDispatch, RootState } from './store/store';
@@ -34,14 +32,10 @@ const { Header, Content, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const routesToPages: {
-  [key: string]: (settings: SettingsResultProps,
-    reflectUpdatedUserSettings?: () => void,
-    routeChangeHandler?: () => void) => JSX.Element
-} = {
-  project_details: (settings) => <ProjectDetails settings={settings} />,
-  packages: (settings, reflectUpdatedUserSettings, routeChangeHandler) => <Packages settings={settings} routeChangeHandler={routeChangeHandler} />,
-  settings: (settings, reflectUpdatedUserSettings) => <Settings settings={settings} reflectUpdatedUserSettings={reflectUpdatedUserSettings} />,
+const routesToPages = {
+  project_details: () => <ProjectDetails />,
+  packages: () => <Packages />,
+  settings: () => <Settings />,
 };
 
 function getMenuItem(
@@ -64,7 +58,7 @@ const items: MenuItem[] = [
   getMenuItem('Settings', 'settings', <Link to='/settings'><SettingOutlined /></Link>),
 ];
 
-const App: React.FC<AppProps> = (props) => {
+const App: React.FC = () => {
   const [collapsed, setCollapsed] = useState(true);
 
   const { token } = theme.useToken();
@@ -113,7 +107,7 @@ const App: React.FC<AppProps> = (props) => {
               borderRadius: token.borderRadiusLG,
             }}
           >
-            {routesToPages[currentActiveRoute](props.settings, props.reflectUpdatedUserSettings, routeChangeHandler)}
+            {routesToPages[currentActiveRoute]()}
           </div>
         </Content>
         {/* <Footer style={{

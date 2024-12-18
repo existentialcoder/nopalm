@@ -4,8 +4,14 @@ import { combineReducers } from 'redux';
 
 import appReducer from './slices/app';
 
+import packageReducer from './slices/packages'
+
+import projectReducer from './slices/project'
+
 const rootReducer = combineReducers({
   app: appReducer,
+  package: packageReducer,
+  project: projectReducer
 });
 
 const store = configureStore({

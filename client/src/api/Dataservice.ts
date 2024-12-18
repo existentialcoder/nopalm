@@ -1,8 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
-import { InstalledPackageProps, ProjectDetailsProps, SettingsResultProps } from '../helpers/types';
+import { InstalledPackageProps, NewProjectDefaults, ProjectDetailsProps, SettingsResultProps } from '../helpers/types';
 
-async function getProjectDetails(): Promise<{ project: ProjectDetailsProps, isEmptyDir: boolean, defaults: object }> {
+async function getProjectDetails(): Promise<{ project: ProjectDetailsProps, isEmptyDir: boolean, defaults: NewProjectDefaults }> {
     const urlPath = 'project';
 
     const result = await fetch(`${API_BASE_URL}/${urlPath}`);
@@ -151,11 +151,35 @@ async function createNewProject(projectDetails) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: projectDetails
+            body: JSON.stringify(projectDetails)
         })).json();
     
         return requestPromise.then((res) => {
             if (res.msg === 'Successfully created the project') {
+                return true;
+            }
+    
+            return false;
+        });
+    } catch (ex) {
+        return false;
+    }
+}
+
+async function updateProject(projectDetails) {
+    const urlPath = 'project';
+
+    try {
+        const requestPromise = (await fetch(`${API_BASE_URL}/${urlPath}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(projectDetails)
+        })).json();
+    
+        return requestPromise.then((res) => {
+            if (res.msg === 'Successfully updated the project') {
                 return true;
             }
     
@@ -175,7 +199,8 @@ const Dataservice = {
     uninstallPackage,
     getSettings,
     updateSettings,
-    createNewProject
+    createNewProject,
+    updateProject
 };
 
 export default Dataservice;

@@ -1,215 +1,179 @@
 import React, { useState, useEffect } from 'react';
 
+import { useSelector, useDispatch } from 'react-redux';
+
 import Question from '../components/Question';
 
 import { newProjectQuestions } from '../helpers/constants';
 
-import { notification, Steps } from 'antd';
+import { FormInstance, Steps } from 'antd';
 
-import { NewProjectDetailsProps, NewProjectTourProps, ProjectDetailsProps, QuestionObject } from '../helpers/types';
+import { NewProjectQuestion, QuestionObject } from '../helpers/types';
 
 import ProjectDetailsForm from './ProjectDetailsForm';
 
 import ProjectNotFoundOrInvalid from './ProjectNotFoundOrInvalid';
 
-import Dataservice from '../api/Dataservice';
+import { AppDispatch, RootState } from '../store/store.ts';
 
-import store from '../store.tsx';
+import { setNewProjectDetails, setShouldShowSaveButton } from '../store/slices/project.ts';
 
-const NewProjectBasicDetails = (props: {
-    questionsToBeRendered: string[],
-    modifyProjectDetails: (value: string, _options: any, questionName: string) => void,
-    newProjectDetails: NewProjectDetailsProps
-}) => {
-    const getQuestionObject = (question_name: string, questionObj: QuestionObject = newProjectQuestions): QuestionObject | undefined => {
-        if (questionObj.question_name === question_name) {
-            return questionObj;
-        }
+const NewProjectTour: React.FC<{ setFormInstances: (formInstances: FormInstance[]) => void }>
+    = (props: { setFormInstances: (formInstances: FormInstance[]) => void }) => {
+        const dispatch = useDispatch<AppDispatch>();
 
-        if (questionObj.options) {
-            for (const option of questionObj.options) {
-                if (option.questions) {
-                    for (const nestedQuestion of option.questions) {
-                        const result = getQuestionObject(question_name, nestedQuestion);
-                        if (result) {
-                            return result;
-                        }
-                    }
-                }
-            }
-        }
+        const newProjectDefaults = useSelector((state: RootState) => state.project.newProjectDefaults);
 
-        return undefined;
-    };
+        const emptyProjectStateType = useSelector((state: RootState) => state.project.emptyProjectStateType);
 
-    return (
-        <div className='new-project-basic-details-container'>
-            {
-                props.questionsToBeRendered.map(questionToBeRendered => {
-                    return (
-                        getQuestionObject(questionToBeRendered) ? <Question key={questionToBeRendered}
-                            answer={props.newProjectDetails[questionToBeRendered]}
-                            questionObj={getQuestionObject(questionToBeRendered)}
-                            answerHandler={props.modifyProjectDetails} /> : ''
-                    )
-                })
-            }
-        </div>
-    )
-};
+        const newProjectDetails = useSelector((state: RootState) => state.project.newProjectDetails);
 
-const newProjectSteps = [
-    {
-        title: 'Scaffold',
-        description: 'Quickly scaffold a project from templates',
-        view: NewProjectBasicDetails
-    },
-    {
-        title: 'Additional details',
-        description: 'More info about project',
-        view: ProjectDetailsForm
-    }
-];
+        const [isConsentedForNewProject, setConsentedForNewProject] = useState(false);
 
-const NewProjectSteps = (props: { defaults: ProjectDetailsProps, newProjectTourStepChangeHandler: (pageNumber: number) => void }) => {
-    const [current, setCurrent] = useState(0);
-    const [pageStatus, setPageStatus] = useState<'process' | 'wait' | 'finish' | 'error'>('process');
-    const [questionsToBeRendered, setQuestionsToBeRendered] = useState<string[]>(['type_of_app']);
+        const [currentStep, setCurrentStep] = useState(0);
 
-    const { newProjectDetails, setNewProjectDetails } = store();
+        const [pageStatus] = useState<'process' | 'wait' | 'finish' | 'error'>('process');
 
-    setNewProjectDetails({
-        ...props.defaults
-    });
+        const [questionsToBeRendered, setQuestionsToBeRendered] = useState<NewProjectQuestion[]>(['type_of_app']);
 
-    const modifyProjectDetails = (value: string, _options: any, questionName: string) => {
-        const questionIndex = questionsToBeRendered.findIndex(qName => qName === questionName);
+        const modifyProjectDetails = (value: string, _options: any, questionName: string) => {
+            const questionIndex = questionsToBeRendered.findIndex(qName => qName === questionName);
 
-        if (questionIndex === 0 || (questionIndex === 1 && newProjectDetails['type_of_app'] === 'web_app')) {
-            setQuestionsToBeRendered(
-                questionsToBeRendered.slice(0, questionIndex + 1)
-            );
-        }
-
-        return setNewProjectDetails({
-            ...newProjectDetails,
-            [questionName]: value
-        });
-    };
-
-    const getQuestionsToAdd = (currentQuestionName: string, selectedOptionValue: string) => {
-        const findQuestion = (question: QuestionObject): string[] | undefined => {
-            if (question.question_name === currentQuestionName) {
-                const selectedOption = question.options.find((option) => option.value === selectedOptionValue);
-                if (selectedOption && selectedOption.questions && selectedOption.questions.length > 0) {
-                    return selectedOption.questions.map(({ question_name }) => question_name);
-                }
-            } else {
-                for (const option of question.options) {
-                    if (option.questions) {
-                        const subQuestion = option.questions.find((subQuestion) => subQuestion.question_name === currentQuestionName);
-                        if (subQuestion) {
-                            return findQuestion(subQuestion);
-                        }
-                    }
-                }
-            }
-            return undefined;
-        };
-
-        return findQuestion(newProjectQuestions);
-    };
-
-    const onPageChangeHandler = async (changedPageIdx) => {
-        setCurrent(changedPageIdx);
-        props.newProjectTourStepChangeHandler(changedPageIdx);
-    }
-
-    useEffect(() => {
-        const poppedQuestion = questionsToBeRendered[questionsToBeRendered.length - 1];
-
-        if (newProjectDetails[poppedQuestion]) {
-            const questionsToAdd = getQuestionsToAdd(poppedQuestion, newProjectDetails[poppedQuestion]);
-
-            if (questionsToAdd !== undefined) {
+            if (questionIndex === 0 || (questionIndex === 1 && newProjectDetails['type_of_app'] === 'web_app')) {
                 setQuestionsToBeRendered(
-                    [
-                        ...questionsToBeRendered,
-                        ...questionsToAdd
-                    ]
+                    questionsToBeRendered.slice(0, questionIndex + 1)
                 );
             }
-        }
-    }, [newProjectDetails]);
 
-    const StepToRender = newProjectSteps[current].view;
+            dispatch(setNewProjectDetails({
+                ...newProjectDetails,
+                [questionName]: value
+            }));
+        };
 
-    return (
-        <div className="new-project-container">
-            {/* <h2 className="new-project-title"> New Project </h2> */}
-            <Steps
-                status={pageStatus}
-                current={current}
-                onChange={onPageChangeHandler}
-                items={newProjectSteps}
-            />
-            <StepToRender
-                newProjectDetails={newProjectDetails}
-                questionsToBeRendered={questionsToBeRendered}
-                modifyProjectDetails={modifyProjectDetails}
-                projectDetails={props.defaults}
-            />
-        </div>
-    )
-};
+        const getQuestionsToAdd = (currentQuestionName: NewProjectQuestion, selectedOptionValue: string) => {
+            const findQuestion = (question: QuestionObject): string[] | undefined => {
+                if (question.question_name === currentQuestionName) {
+                    const selectedOption = question.options.find((option) => option.value === selectedOptionValue);
+                    if (selectedOption && selectedOption.questions && selectedOption.questions.length > 0) {
+                        return selectedOption.questions.map(({ question_name }) => question_name);
+                    }
+                } else {
+                    for (const option of question.options) {
+                        if (option.questions) {
+                            const subQuestion = option.questions.find((subQuestion) => subQuestion.question_name === currentQuestionName);
+                            if (subQuestion) {
+                                return findQuestion(subQuestion);
+                            }
+                        }
+                    }
+                }
+                return undefined;
+            };
 
-const NewProjectTour: React.FC = () => {
-    const [isConsentedForNewProject, setConsentedForNewProject] = useState(props.consentedForNewProject);
+            return findQuestion(newProjectQuestions);
+        };
 
-    const { newProjectDetails, setNewProjectDetails } = store();
-    
-    type NotificationType = 'success' | 'info' | 'warning' | 'error';
+        const onPageChangeHandler = async (changedPageIdx: number) => {
+            setCurrentStep(changedPageIdx);
 
-    const [api, contextHolder] = notification.useNotification();
+            dispatch(setShouldShowSaveButton(changedPageIdx === 1));
+        };
 
-    function notify(message: string, description: string, type: NotificationType) {
-        return api[type]({
-            message,
-            description
-        });
-    }
+        const NewProjectBasicDetails = () => {
+            const getQuestionObject = (question_name: string, questionObj: QuestionObject = newProjectQuestions): QuestionObject | undefined => {
+                if (questionObj.question_name === question_name) {
+                    return questionObj;
+                }
 
-    useEffect(() => {
-        async function saveNewProject(newNodeProjectForm) {
-            const isSaveSuccessful = await Dataservice.createNewProject(newNodeProjectForm);
+                if (questionObj.options) {
+                    for (const option of questionObj.options) {
+                        if (option.questions) {
+                            for (const nestedQuestion of option.questions) {
+                                const result = getQuestionObject(question_name, nestedQuestion);
+                                if (result) {
+                                    return result;
+                                }
+                            }
+                        }
+                    }
+                }
 
-            props.setIsSaveLoading(false);
+                return undefined;
+            };
 
-            return notify(
-                isSaveSuccessful ? 'Created new project' : 'Error creating new project',
-                isSaveSuccessful ? 'Succesfully created new node project. Check your current working directory' : 'Error creating new project. Please check the debug logs',
-                isSaveSuccessful ? 'success' : 'error'
-            );
-        }
-    
-        if (props.saveClicked) {
-            props.setIsSaveLoading(true);
+            return (
+                <div className='new-project-basic-details-container'>
+                    {
+                        questionsToBeRendered.map(questionToBeRendered => {
+                            return (
+                                getQuestionObject(questionToBeRendered) ? <Question key={questionToBeRendered}
+                                    answer={newProjectDetails[questionToBeRendered]}
+                                    questionObj={getQuestionObject(questionToBeRendered)}
+                                    answerHandler={modifyProjectDetails} /> : ''
+                            )
+                        })
+                    }
+                </div>
+            )
+        };
 
-            saveNewProject(newProjectDetails);
-        }
-    }, [props.saveClicked])
-
-    return (
-        <React.Fragment>
-            {contextHolder}
+        const newProjectSteps = [
             {
-                isConsentedForNewProject ? <NewProjectSteps
-                    newProjectTourStepChangeHandler={props.newProjectTourStepChangeHandler}
-                    defaults={props.defaults} /> :
-                    <ProjectNotFoundOrInvalid type={props.isEmptyDir ? 'not_found' : 'invalid'} createNewProjectHandler={() => setConsentedForNewProject(true)} />
+                title: 'Scaffold',
+                description: 'Quickly scaffold a project by answering quick questions'
+            },
+            {
+                title: 'Additional details',
+                description: 'More info about project'
             }
-        </React.Fragment>
-    )
-};
+        ];
+
+        useEffect(() => {
+            const poppedQuestion = questionsToBeRendered[questionsToBeRendered.length - 1];
+
+            if (newProjectDetails[poppedQuestion]) {
+                const questionsToAdd = getQuestionsToAdd(poppedQuestion, newProjectDetails[poppedQuestion]);
+
+                if (questionsToAdd !== undefined) {
+                    setQuestionsToBeRendered(
+                        [
+                            ...questionsToBeRendered,
+                            ...questionsToAdd
+                        ]
+                    );
+                }
+            }
+        }, [newProjectDetails]);
+
+        useEffect(() => {
+            if (Object.keys(newProjectDetails).length === 0) {
+                dispatch(setNewProjectDetails({ ...newProjectDefaults }));
+            }
+        }, []);
+
+        return (
+            <React.Fragment>
+                {
+                    isConsentedForNewProject ? <div className='new-project-container'>
+                        {/* <h2 className="new-project-title"> New Project </h2> */}
+                        <Steps
+                            status={pageStatus}
+                            current={currentStep}
+                            onChange={onPageChangeHandler}
+                            items={newProjectSteps}
+                        />
+                        {
+                            currentStep === 0 && <NewProjectBasicDetails />
+                        }
+                        {
+                            currentStep === 1 && <ProjectDetailsForm setFormInstances={props.setFormInstances} />
+                        }
+                    </div> :
+                        <ProjectNotFoundOrInvalid type={emptyProjectStateType} createNewProjectHandler={() => setConsentedForNewProject(true)} />
+                }
+            </React.Fragment>
+        );
+    };
 
 export default NewProjectTour;

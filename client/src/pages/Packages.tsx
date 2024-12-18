@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Flex, Button, Modal } from 'antd';
+import { Flex, Button, Modal, Empty } from 'antd';
+
+import { useDispatch, useSelector } from 'react-redux';
 
 import './Packages.scss';
 
+import { useNavigate } from 'react-router-dom';
+
 import PackageCard from '../components/PackageCard';
 
-import Dataservice from '../api/Dataservice';
-
-import { InstalledPackageProps, PackageExplorerRef, ProjectDetailsProps, SettingsResultProps } from "../helpers/types";
+import { PackageExplorerRef } from "../helpers/types";
 
 import PackageExplorer from '../components/PackageExplorer';
 
@@ -16,107 +18,103 @@ import { dummyPackages } from '../helpers/constants';
 
 import ProjectNotFoundOrInvalid from '../components/ProjectNotFoundOrInvalid';
 
-const Packages: React.FC<{ settings: SettingsResultProps, routeChangeHandler: () => void }> = (props) => {
-    const [installedPackages, setInstalledPackages] = useState<InstalledPackageProps[]>([]);
+import { AppDispatch, RootState } from '../store/store';
 
-    const [projectDetails, setProjectDetails] = useState<ProjectDetailsProps>({});
+import { fetchAndSetProjectDetails } from '../store/slices/project';
 
-    const [emptyStateType, setEmptyStateType] = useState<'' | 'invalid' | 'not_found'>('');
+import { fetchAndSetInstalledPackages, setIsPackageSaveLoading, setPackagesLoading } from '../store/slices/packages';
 
-    const [packagesLoading, setPackagesLoading] = useState(true);
+import { setCurrentActiveRoute } from '../store/slices/app';
 
-    const [emptyPackageList, setEmptyPackageList] = useState(false);
+const Packages: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
 
-    const [isPackagesSaveLoading, setIsPackagesSaveLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const [isModalOpen, setModalOpen] = useState(false);
+    const installedPackages = useSelector((state: RootState) => state.package.installedPackages);
+
+    const packagesLoading = useSelector((state: RootState) => state.package.packagesLoading);
+
+    const isEmptyPackageList = useSelector((state: RootState) => state.package.isEmptyPackageList);
+
+    const isPackagesSaveLoading = useSelector((state: RootState) => state.package.isPackageSaveLoading);
+
+    const emptyProjectStateType = useSelector((state: RootState) => state.project.emptyProjectStateType);
+
+    const [isPackageExplorerModalOpen, setPackageExplorerModalOpen] = useState(false);
 
     const packageExplorerRef = useRef<PackageExplorerRef>(null);
 
-    async function setInitialFlags() {
-        const { project, isEmptyDir } = await Dataservice.getProjectDetails();
+    function fetchAndSetPackageAndProject() {
+        // Always dispatch API calls to keep it up to date since changes can be external from app as well
+        dispatch(fetchAndSetProjectDetails());
 
-        const packages = (await Dataservice.getInstalledPackages()) || [];
-
-        if (packages.length === 0) {
-            setEmptyPackageList(true);
+        if (emptyProjectStateType === '') {
+            dispatch(fetchAndSetInstalledPackages());
         }
-
-        setProjectDetails(project);
-        setInstalledPackages(packages);
-
-        if (Object.keys(projectDetails).length === 0 && packages.length === 0) {
-            setEmptyStateType(isEmptyDir ? 'not_found' : 'invalid')
-        }
-
-        setPackagesLoading(false);
     }
 
-    useEffect(() => {
-        setInitialFlags();
-    }, []);
-
-    const reRenderPackages = () => {
-        setTimeout(() => setInitialFlags(), 100);
-    };
+    useEffect(fetchAndSetPackageAndProject, []);
 
     return (
         <div className="packages-container">
             <div className="title-container">
                 Installed Packages
                 {
-                    emptyStateType === '' && <Button type={"primary"} onClick={() => setModalOpen(true)}>
-                        Add more
+                    emptyProjectStateType === '' && <Button type={"primary"} onClick={() => setPackageExplorerModalOpen(true)}>
+                        {installedPackages.length === 0 && isEmptyPackageList ? 'Explore' : 'Add more'}
                     </Button>
                 }
             </div>
             {
-                emptyStateType === '' ? <React.Fragment>
+                emptyProjectStateType === '' ? <React.Fragment>
                     <Modal title="Package Explorer"
-                        open={isModalOpen} width={1000} bodyStyle={{ minHeight: 430, overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}
+                        open={isPackageExplorerModalOpen} width={1000} style={{ minHeight: 430, overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}
                         footer={[
                             <Button key="revert" disabled={isPackagesSaveLoading} type="default" onClick={() => packageExplorerRef.current?.onRevertClickHandler()}>
                                 Revert
                             </Button>,
                             <Button key="save" type="primary" loading={isPackagesSaveLoading}
-                                onClick={() => { setIsPackagesSaveLoading(true); packageExplorerRef.current?.onSaveClickHandler() }}>
+                                onClick={() => { dispatch(setIsPackageSaveLoading(true)); packageExplorerRef.current?.onSaveClickHandler() }}>
                                 Save
                             </Button>
                         ]}
-                        onCancel={() => { setModalOpen(false); packageExplorerRef.current?.onCancelClickHandler() }}>
+                        onCancel={() => { setPackageExplorerModalOpen(false); packageExplorerRef.current?.onCancelClickHandler() }}>
                         <PackageExplorer
                             ref={packageExplorerRef}
-                            reRenderPackages={reRenderPackages}
-                            setIsPackagesSaveLoading={setIsPackagesSaveLoading}
-                            projectName={projectDetails.name}
-                            projectDescription={projectDetails.description} />
+                            reRenderPackages={
+                                () => {
+                                    dispatch(setPackagesLoading(true));
+                                    dispatch(fetchAndSetInstalledPackages());
+                                }
+                            } />
                     </Modal>
                     <div className="packages-list">
-                        {installedPackages.length === 0 && emptyPackageList && (
-                            <div className="no-packages-container"> No packages installed.
-                                <div className="consent-btn-group">
-                                    <Flex gap="medium" wrap="wrap" justify="center" style={{ margin: "10px" }}>
-                                        <Button type={"primary"} onClick={() => { }}>
-                                            Explore
-                                        </Button>
-                                    </Flex>
-                                </div>
+                        {installedPackages.length === 0 && isEmptyPackageList && (
+                            <div className="no-packages-container">
+                                <Empty description='No packages found to be installed. Explore more and install.' />
                             </div>
                         ) ||
                             (installedPackages.length > 0 ? installedPackages : dummyPackages).map(installedPackage => (
                                 <PackageCard
-                                    reRenderPackages={reRenderPackages}
+                                    reRenderPackages={() => {
+                                        dispatch(setPackagesLoading(true));
+                                        dispatch(fetchAndSetInstalledPackages());
+                                    }}
                                     loading={packagesLoading}
                                     key={installedPackage.name}
                                     package={installedPackage}
                                     installed={true}
                                     versions={[]}
-                                    accentColor={props.settings.appearance.accent_color}
                                     modifyListOfPackagesToInstall={() => { }}
                                 />
                             ))}
                     </div>
-                </React.Fragment> : <ProjectNotFoundOrInvalid type={emptyStateType} createNewProjectHandler={props.routeChangeHandler} />
+                </React.Fragment> : <ProjectNotFoundOrInvalid type={emptyProjectStateType} createNewProjectHandler={
+                    () => {
+                        dispatch(setCurrentActiveRoute('project_details'));
+                        navigate('project_details');
+                    }} />
             }
         </div>
     )

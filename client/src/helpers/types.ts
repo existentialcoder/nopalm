@@ -33,19 +33,21 @@ export enum AccentColors {
     geekblue = 'geekblue'
 }
 
+export type EmptyProjectStateTypes = '' | 'not_found' | 'invalid';
+
+type AppearanceSettings = {
+    mode: AppearanceModes,
+    accent_color: AccentColors
+};
+
+type PreferenceSettings = {
+    package_manager: PackageManagers,
+    log_level: LogLevels
+};
+
 export interface SettingsResultProps {
-    appearance: {
-        mode: AppearanceModes,
-        accent_color: AccentColors
-    },
-    preferences: {
-        package_manager: PackageManagers,
-        log_level: LogLevels
-    }
-}
-export interface AppProps {
-    settings: SettingsResultProps,
-    reflectUpdatedUserSettings: () => void
+    appearance: AppearanceSettings,
+    preferences: PreferenceSettings
 }
 
 export type Option = {
@@ -84,10 +86,7 @@ export interface InstalledPackageProps extends PackageProps {
 }
 
 interface PackageExplorerPropsInterface {
-    projectName: string,
-    projectDescription: string,
     reRenderPackages: () => void,
-    setIsPackagesSaveLoading: () => void
 }
 
 export interface PackageExplorerRef {
@@ -98,27 +97,28 @@ export interface PackageExplorerRef {
 
 export type PackageExplorerProps = PackageExplorerPropsInterface & React.RefAttributes<PackageExplorerRef>
 
+export type NotificationType = 'success' | 'info' | 'warning' | 'error';
+
 export interface PackageCardProps {
     loading: boolean,
     reRenderPackages: () => void,
     package: InstalledPackageProps,
     installed: boolean,
     versions: string[],
-    accentColor: AccentColors,
     isPackageSelectedToInstall?: boolean,
-    modifyListOfPackagesToInstall: () => void,
+    modifyListOfPackagesToInstall: (packageName: string, selectedVersionToInstall?: string | undefined, isDevPackage?: boolean | undefined) => void
 }
 
 export interface ProjectDetailsProps {
-    name: string,
-    description: string,
-    private: boolean,
-    keywords: string[],
-    repository: string | object,
-    homepage: string,
-    bugs: string | object,
-    license: string,
-    author: string | object
+    name?: string,
+    description?: string,
+    private?: boolean,
+    keywords?: string[],
+    repository?: string,
+    homepage?: string,
+    bugs?: string,
+    license?: string,
+    author?: string
 }
 
 export interface PackageToInstallProps {
@@ -129,20 +129,27 @@ export interface PackageToInstallProps {
 
 export interface AccentColorPickerProps {
     selectedAccentColor: string,
-    onColorChange: (accentColor: string) => void
+    onColorChange: (accentColor: AccentColors) => void
 }
 
 export interface NewProjectTourProps {
     isEmptyDir: boolean,
     defaults: ProjectDetailsProps,
-    saveClicked: boolean,
     setIsSaveLoading: (arg: boolean) => void,
-    setSaveClicked: (arg: boolean) => void,
     newProjectTourStepChangeHandler: (inp: number) => void,
     consentedForNewProject: boolean
 }
 
-export interface NewProjectDetailsProps {
+
+export interface NewProjectDefaults {
+    name?: string,
+    homepage?: string,
+    bugs?: string,
+    author?: string,
+    repository?: string
+};
+
+export interface NewProjectDetailsProps extends NewProjectDefaults {
     type_of_app?: string,
     cli_utility_package?: string,
     linter?: string,
@@ -153,6 +160,8 @@ export interface NewProjectDetailsProps {
     database?: string,
     orm?: string
 }
+
+export type NewProjectQuestion = keyof NewProjectDetailsProps;
 
 export interface ProjectDetailsFormProps {
     projectDetails: ProjectDetailsProps

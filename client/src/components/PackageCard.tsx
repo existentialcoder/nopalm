@@ -1,6 +1,8 @@
-import { Card, Switch, Avatar, Button, Select, Tag, Tooltip, Popconfirm, notification, theme as antdTheme } from 'antd';
+import { Card, Switch, Avatar, Button, Select, Tag, Tooltip, Popconfirm, theme as antdTheme } from 'antd';
 
 import { UploadOutlined, DeleteFilled, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+
+import { useSelector } from 'react-redux';
 
 import './PackageCard.scss';
 
@@ -12,14 +14,16 @@ import { PackageCardProps } from '../helpers/types';
 
 import Dataservice from '../api/Dataservice';
 
+import { RootState } from '../store/store';
+
+import { useNotification } from './NotificationContext';
+
 const { Meta } = Card;
 
 const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
-    type NotificationType = 'success' | 'info' | 'warning' | 'error';
-
     const { token: theme } = antdTheme.useToken();
 
-    const [api, contextHolder] = notification.useNotification();
+    const { notify } = useNotification()
 
     const [isDevPackage, setIsDevPackage] = useState(props.package.is_dev);
 
@@ -29,12 +33,7 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
 
     const [selectedVersionToInstall, setSelectedVersionToInstall] = useState(props.package.versions[0]);
 
-    function notify(message: string, description: string, type: NotificationType) {
-        return api[type]({
-            message,
-            description
-        });
-    }
+    const selectedPrimaryColor = useSelector((state: RootState) => state.app.selectedPrimaryColor);
 
     async function devDependencyHandler(checked: boolean) {
         setIsDevPackage(checked);
@@ -99,7 +98,6 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
             marginTop: '16px',
             height: '100px',
         }} loading={props.loading}>
-            {contextHolder}
             <div className="card-main-container">
                 <Meta
                     style={{ width: '90' }}
@@ -118,7 +116,7 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
                 />
                 {
                     props.installed && (compare(props.package.installed_version || '', props.package.latest_version, '=') ? ""
-                        : <Tag className="upgradable-tag" color={props.accentColor}>
+                        : <Tag className="upgradable-tag" color={selectedPrimaryColor}>
                             Latest : {props.package.latest_version}
                         </Tag>)
                 }
@@ -126,11 +124,8 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
                     <div className="toggle-select-buttons">
                         {
                             !props.installed && (
-                                <Select disabled={!props.isPackageSelectedToInstall} placeholder='Version' defaultValue={{
-                                    value: props.package.versions[0],
-                                    label: props.package.versions[0]
-                                }}
-                                    onChange={(val) => {
+                                <Select disabled={!props.isPackageSelectedToInstall} placeholder='Version' defaultValue={props.package.versions[0]}
+                                    onChange={(val: string) => {
                                         setSelectedVersionToInstall(val);
                                         props.modifyListOfPackagesToInstall(props.package.name, val, isDevPackage)
                                     }}

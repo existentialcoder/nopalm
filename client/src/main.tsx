@@ -1,28 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { BrowserRouter } from 'react-router-dom';
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import App from './App.tsx';
 
 import './index.scss';
 
-import { ConfigProvider, ThemeConfig, Skeleton, theme } from 'antd';
+import { ConfigProvider, Skeleton, theme, ThemeConfig } from 'antd';
 
-import store from './store/store.ts';
+const { defaultAlgorithm, darkAlgorithm, getDesignToken } = theme;
 
 import { AppDispatch, RootState } from './store/store.ts';
 
 import { fetchAndSetGlobalSettings } from './store/slices/app.ts';
 
-
-const { defaultAlgorithm, darkAlgorithm, getDesignToken } = theme;
+import { NotificationProvider } from './components/NotificationContext';
 
 const Main: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-
-  const globalSettings = useSelector((state: RootState) => state.app.globalSettings);
 
   const isMainLoading = useSelector((state: RootState) => state.app.isMainLoading);
 
@@ -47,39 +44,44 @@ const Main: React.FC = () => {
 
   const LightToken = getDesignToken(LightTheme);
 
-  const [tokenSelected, setTokenSelected] = useState(LightToken);
+  const [tokenSelected, setTokenSelected] = useState<typeof LightToken>(LightToken);
 
   useEffect(() => {
     dispatch(fetchAndSetGlobalSettings())
   }, []);
 
+  useEffect(() => {
+    setTokenSelected(isDark ? DarkToken : LightToken);
+  }, [isDark]);
+
   return (
     <React.StrictMode>
-      <Provider store={store}>
-        <BrowserRouter>
-          <ConfigProvider theme={{
-            algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
-            components: {
-              Layout: {
-                siderBg: selectedPrimaryColor,
-                triggerBg: selectedPrimaryColor
-              }
-            },
-            token: {
-              colorPrimary: selectedPrimaryColor
+      <BrowserRouter>
+        <ConfigProvider theme={{
+          algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
+          components: {
+            Layout: {
+              siderBg: selectedPrimaryColor,
+              triggerBg: selectedPrimaryColor
             }
-          }}>
+          },
+          token: {
+            colorPrimary: selectedPrimaryColor
+          }
+        }}>
+          <NotificationProvider>
             <div style={{
               color: tokenSelected.colorText,
               background: tokenSelected.colorBgBase
             }}>
+
               <Skeleton loading={isMainLoading}>
-                <App settings={globalSettings} reflectUpdatedUserSettings={fetchGlobalSettings} />
+                <App />
               </Skeleton>
             </div>
-          </ConfigProvider>
-        </BrowserRouter>
-      </Provider>
+          </NotificationProvider>
+        </ConfigProvider>
+      </BrowserRouter>
     </React.StrictMode >
   )
 };
