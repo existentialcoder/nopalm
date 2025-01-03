@@ -35,12 +35,14 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
 
     const selectedPrimaryColor = useSelector((state: RootState) => state.app.selectedPrimaryColor);
 
+    const currentProjectDirectoryPath = useSelector((state: RootState) => state.project.currentProjectDirectoryPath);
+
     async function devDependencyHandler(checked: boolean) {
         setIsDevPackage(checked);
         if (props.installed) {
             setIsDevDepToggleLoading(true);
             try {
-                await Dataservice.updatePackage(props.package.name, props.package.installed_version, checked);
+                await Dataservice.updatePackage(currentProjectDirectoryPath, props.package.name, props.package.installed_version, checked);
 
                 setIsDevDepToggleLoading(false);
 
@@ -62,7 +64,7 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
 
     async function uninstallPackage(packageName: string) {
         try {
-            await Dataservice.uninstallPackage(packageName);
+            await Dataservice.uninstallPackage(currentProjectDirectoryPath, packageName);
 
             props.reRenderPackages();
 
@@ -78,7 +80,7 @@ const PackageCard: React.FC<PackageCardProps> = (props: PackageCardProps) => {
 
     async function updatePackage(packageName: string, version: string) {
         try {
-            await Dataservice.updatePackage(packageName, version, undefined);
+            await Dataservice.updatePackage(currentProjectDirectoryPath, packageName, version, undefined);
 
             props.reRenderPackages();
 

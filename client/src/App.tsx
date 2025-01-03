@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 
+import GithubCorner from 'react-github-corner';
+
 import {
   ProjectDetails, Packages, Settings
 } from './pages';
@@ -27,6 +29,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from './store/store';
 
 import { setCurrentActiveRoute } from './store/slices/app';
+
+import { nopalmGitHubPath } from './helpers/constants';
+
+import Select from 'antd/es/select';
+
+import { fetchAndSetProjectDetails, setCurrentProjectDirectoryPath } from './store/slices/project';
+import { fetchAndSetInstalledPackages, setPackagesLoading } from './store/slices/packages';
 
 const { Header, Content, Sider } = Layout;
 
@@ -65,7 +74,11 @@ const App: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
+  const selectedPrimaryColor = useSelector((state: RootState) => state.app.selectedPrimaryColor);
+
   const currentActiveRoute = useSelector((state: RootState) => state.app.currentActiveRoute);
+
+  const allProjectDirectoryPaths = useSelector((state: RootState) => state.project.allProjectDirectoryPaths);
 
   function routeChangeHandler() {
     const currentPath = window.location.pathname.slice(1);
@@ -73,6 +86,31 @@ const App: React.FC = () => {
     const pathToSet = currentPath === '' ? 'project_details' : currentPath;
 
     dispatch(setCurrentActiveRoute(pathToSet));
+  }
+
+  async function directoryPathChangeHandler(inp: string) {
+    await dispatch(setCurrentProjectDirectoryPath(inp));
+    debugger;
+    // Retrieve and update project details always when directory path changes
+    await dispatch(fetchAndSetProjectDetails());
+
+
+    if (currentActiveRoute === 'packages') {
+      // Retrieve and update installed packages only when the packages page is active
+      await dispatch(setPackagesLoading(true));
+      await dispatch(fetchAndSetInstalledPackages());
+    }
+  }
+
+  function getCurrentDirectoryOptions() {
+    return allProjectDirectoryPaths.map(dirPath => {
+      const root = allProjectDirectoryPaths.find(dir => dir.root === true);
+
+      return {
+        label: dirPath.path.split(root?.path || '')[1].length > 0 ? dirPath.path.split(root?.path || '')[1] : '/',
+        value: dirPath.path
+      };
+    });
   }
 
   useEffect(() => {
@@ -98,7 +136,23 @@ const App: React.FC = () => {
           alignItems: 'center',
           background: token.colorBgBase
         }}>
-          <NopalmLogo includeTitle />
+          <div className='logo-dir-container'>
+            <NopalmLogo includeTitle />
+            <div className='current-directory-picker'>
+              <div className='current-directory'>Current project path &nbsp;: &nbsp;
+                <span style={{ color: selectedPrimaryColor }}>
+                  {allProjectDirectoryPaths.find(dir => dir.root === true)?.path.split('/').pop()}
+                </span>
+              </div>
+              <div className='directory-picker'>
+                <Select
+                  options={getCurrentDirectoryOptions()}
+                  onSelect={directoryPathChangeHandler}
+                  defaultValue='/' />
+              </div>
+            </div>
+          </div>
+          <GithubCorner target='_blank' href={nopalmGitHubPath} bannerColor={selectedPrimaryColor} />
         </Header>
         <Content style={{ margin: '0 10px', padding: 0, overflow: 'initial' }}>
           <div

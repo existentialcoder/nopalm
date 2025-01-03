@@ -1,0 +1,9 @@
+{
+    "name": "hello-node-world",
+    "version": "1.0.0",
+    "description": "My first node.js project",
+    "scripts": {
+        "start": "node ./"
+    },
+    "license": "ISC"
+}

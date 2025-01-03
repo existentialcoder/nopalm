@@ -1,21 +1,21 @@
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
-import { InstalledPackageProps, NewProjectDefaults, ProjectDetailsProps, SettingsResultProps } from '../helpers/types';
+import { InstalledPackageProps, NewProjectDefaults, ProjectDetailsProps, ProjectDirectory, SettingsResultProps } from '../helpers/types';
 
-async function getProjectDetails(): Promise<{ project: ProjectDetailsProps, isEmptyDir: boolean, defaults: NewProjectDefaults }> {
+async function getProjectDetails(dir: string): Promise<{ project: ProjectDetailsProps, isEmptyDir: boolean, allProjectDirectories: ProjectDirectory[],defaults: NewProjectDefaults }> {
     const urlPath = 'project';
 
-    const result = await fetch(`${API_BASE_URL}/${urlPath}`);
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?dir=${dir}`);
 
-    const { project, is_empty_dir: isEmptyDir, defaults } = await result.json();
+    const { project, is_empty_dir: isEmptyDir, defaults, all_project_directories: allProjectDirectories  } = await result.json();
 
-    return { project, isEmptyDir, defaults };
+    return { project, isEmptyDir, defaults, allProjectDirectories };
 }
 
-async function getInstalledPackages(): Promise<InstalledPackageProps[]> {
+async function getInstalledPackages(dir: string): Promise<InstalledPackageProps[]> {
     const urlPath = 'packages/installed';
 
-    const result = await fetch(`${API_BASE_URL}/${urlPath}`);
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?dir=${dir}`);
 
     const { packages } = await result.json();
 
@@ -32,10 +32,10 @@ async function searchPackages(q: string) {
     return packages;
 }
 
-async function installPackage(packageName: string, versionToInstall: string, isDev: boolean) {
+async function installPackage(dir: string, packageName: string, versionToInstall: string, isDev: boolean) {
     const urlPath = 'packages/install';
 
-    const result = await fetch(`${API_BASE_URL}/${urlPath}`, {
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?dir=${dir}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ async function installPackage(packageName: string, versionToInstall: string, isD
     return result;
 }
 
-async function updatePackage(packageName: string, versionToUpdate: string | undefined, isDev: boolean | undefined) {
+async function updatePackage(dir: string, packageName: string, versionToUpdate: string | undefined, isDev: boolean | undefined) {
     const urlPath = 'packages/upgrade';
 
     const packageDetailsToUpdate: {
@@ -77,7 +77,7 @@ async function updatePackage(packageName: string, versionToUpdate: string | unde
         packageDetailsToUpdate.isDev = isDev;
     }
 
-    const result = await fetch(`${API_BASE_URL}/${urlPath}`, {
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?dir=${dir}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -94,10 +94,10 @@ async function updatePackage(packageName: string, versionToUpdate: string | unde
     return result;
 }
 
-async function uninstallPackage(packageName: string) {
+async function uninstallPackage(dir: string, packageName: string) {
     const urlPath = 'packages/uninstall';
 
-    const result = await fetch(`${API_BASE_URL}/${urlPath}`, {
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?dir=${dir}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
@@ -142,11 +142,11 @@ async function updateSettings(scope: 'global' | 'local', settingsToUpdate: Setti
     return result;
 }
 
-async function createNewProject(projectDetails) {
+async function createNewProject(dir: string, projectDetails: ProjectDetailsProps) {
     const urlPath = 'project/new';
 
     try {
-        const requestPromise = (await fetch(`${API_BASE_URL}/${urlPath}`, {
+        const requestPromise = (await fetch(`${API_BASE_URL}/${urlPath}?dir=${dir}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -166,11 +166,11 @@ async function createNewProject(projectDetails) {
     }
 }
 
-async function updateProject(projectDetails) {
+async function updateProject(dir: string, projectDetails: ProjectDetailsProps) {
     const urlPath = 'project';
 
     try {
-        const requestPromise = (await fetch(`${API_BASE_URL}/${urlPath}`, {
+        const requestPromise = (await fetch(`${API_BASE_URL}/${urlPath}?dir=${dir}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'

@@ -41,20 +41,20 @@ const Packages: React.FC = () => {
 
     const emptyProjectStateType = useSelector((state: RootState) => state.project.emptyProjectStateType);
 
+    const currentProjectDirectoryPath = useSelector((state: RootState) => state.project.currentProjectDirectoryPath);
+
     const [isPackageExplorerModalOpen, setPackageExplorerModalOpen] = useState(false);
 
     const packageExplorerRef = useRef<PackageExplorerRef>(null);
 
     function fetchAndSetPackageAndProject() {
+        dispatch(setPackagesLoading(true));
         // Always dispatch API calls to keep it up to date since changes can be external from app as well
         dispatch(fetchAndSetProjectDetails());
-
-        if (emptyProjectStateType === '') {
-            dispatch(fetchAndSetInstalledPackages());
-        }
+        dispatch(fetchAndSetInstalledPackages());
     }
 
-    useEffect(fetchAndSetPackageAndProject, []);
+    useEffect(fetchAndSetPackageAndProject, [currentProjectDirectoryPath]);
 
     return (
         <div className="packages-container">
@@ -83,10 +83,7 @@ const Packages: React.FC = () => {
                         <PackageExplorer
                             ref={packageExplorerRef}
                             reRenderPackages={
-                                () => {
-                                    dispatch(setPackagesLoading(true));
-                                    dispatch(fetchAndSetInstalledPackages());
-                                }
+                                fetchAndSetPackageAndProject
                             } />
                     </Modal>
                     <div className="packages-list">

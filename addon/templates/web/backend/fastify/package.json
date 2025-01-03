@@ -1,0 +1,14 @@
+{
+    "name": "fastify-app",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "node src/",
+        "dev": "nodemon src/"
+    },
+    "dependencies": {
+        "fastify": "^4.20.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    }
+}
