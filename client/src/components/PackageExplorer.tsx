@@ -28,6 +28,8 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
     const dispatch = useDispatch<AppDispatch>();
 
     const { notify } = useNotification();
+
+    const currentProjectDirectoryPath = useSelector((state: RootState) => state.project.currentProjectDirectoryPath);
     
     const [searchResults, setSearchResults] = useState<PackageProps[]>([]);
 
@@ -89,7 +91,7 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
 
     const onSaveClickHandler = async () => {
         await Promise.all(listOfNewPackagesToInstall.map(
-            pkg => Dataservice.installPackage(pkg.name, pkg.version_to_install || '', pkg.is_dev || false))
+            pkg => Dataservice.installPackage(currentProjectDirectoryPath, pkg.name, pkg.version_to_install || '', pkg.is_dev || false))
         );
 
         notify('Installed Packages', 'Successfully installed list of packages', 'success');

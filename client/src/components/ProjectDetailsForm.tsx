@@ -36,7 +36,8 @@ const ProjectDetailsForm = (props: { setFormInstances: (formInstances: FormInsta
             const allSelectedItems = Array.from(val.currentTarget.querySelectorAll('.ant-select-selection-item')).map(item => item.textContent);
 
             valueToSet = formField.tags === true ? allSelectedItems : allSelectedItems[0]
-;        }
+                ;
+        }
 
         const handler = isNewProject ? setNewProjectDetails : setProjectDetails;
 
@@ -69,9 +70,13 @@ const ProjectDetailsForm = (props: { setFormInstances: (formInstances: FormInsta
     const FormWrapper = (props: { form: FormInstance, formKey: 'basic_meta_details' | 'ownership' | 'discoverability' }) => {
         const projectDetailsToWrap = isNewProject ? newProjectDetails : projectDetails;
 
+        useEffect(() => {
+            props.form.setFieldsValue(projectDetailsToWrap);
+        }, [projectDetailsToWrap, props.form]);
+
         return (
-            <Form form={props.form} layout='vertical'
-                initialValues={projectDetailsToWrap} autoComplete='on'
+            <Form form={props.form} layout='vertical' key={projectDetailsToWrap.name}
+                initialValues={projectDetailsToWrap.name?.length ? projectDetailsToWrap : {}} autoComplete='on'
                 style={{ maxWidth: '90%', margin: 'auto' }}>
                 {
                     formFields[props.formKey].map(formField => {

@@ -1,0 +1,6 @@
+{
+    "name": "simple-web-app",
+    "scripts": {
+        "start": "node ./"
+    }
+}

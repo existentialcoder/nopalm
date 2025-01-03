@@ -1,0 +1,14 @@
+{
+    "name": "derby-app",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "node src/",
+        "dev": "nodemon src/"
+    },
+    "dependencies": {
+        "derby": "^2.3.1"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    }
+}

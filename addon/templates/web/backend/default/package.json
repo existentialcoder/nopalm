@@ -1,0 +1,12 @@
+{
+    "name": "plain-node-app",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "node src/",
+        "dev": "nodemon app.js"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "nodemon": "^3.0.2"
+    }
+}

@@ -185,3 +185,8 @@ export interface FormFieldProps {
     addon_before?: string,
     max_length?: number
 }
+
+export interface ProjectDirectory {
+    root: boolean,
+    path: string,
+}

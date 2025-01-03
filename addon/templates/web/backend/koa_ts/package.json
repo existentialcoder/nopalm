@@ -1,0 +1,17 @@
+{
+    "name": "koa-ts-app",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "ts-node src/",
+        "dev": "node src/"
+    },
+    "dependencies": {
+        "koa": "^2.14.2"
+    },
+    "devDependencies": {
+        "@types/koa": "^2.13.5",
+        "nodemon": "^3.0.2",
+        "typescript": "^5.3.3",
+        "ts-node": "^10.9.2"
+    }
+}

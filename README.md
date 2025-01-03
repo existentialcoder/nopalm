@@ -49,10 +49,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     ```shell
     cd client
     npm run dev'
-* Run the server in an existing node project
+* Run the server in an existing node project directly without a script
     ```shell
     cd /path/to/target_node_project
-    npm run dev --prefix /path/to/nopalm
+    nodemon /path/to/nopalm
     ```
 * Alternatively, alias the nopalm server and run
     ```shell
@@ -71,7 +71,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
     <!-- cd to target node project -->
     cd /path/to/target_node_project
     
-    npm run start --prefix /path/to/nopalm
+    nodemon /path/to/nopalm
     ```
 * Visit [https://localhost:8001](https://localhost:8001)
 * Follow the same steps for testing in `empty directory`

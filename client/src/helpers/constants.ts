@@ -69,35 +69,40 @@ const frontendQuestions: QuestionObject[] = [{
             label: 'React'
         },
         {
+            value: 'preact',
+            label: 'Preact'
+        },
+        {
             value: 'svelte',
             label: 'Svelte JS'
         }
     ]
 },
-{
-    question_name: 'frontend_build_tool',
-    question: 'Choose a build tool',
-    type: 'select',
-    logo_name: 'frontend_build_tool',
-    options: [
-        {
-            value: 'vite',
-            label: 'Vite'
-        },
-        {
-            value: 'webpack',
-            label: 'Webpack'
-        },
-        {
-            value: 'rollup',
-            label: 'Rollup'
-        },
-        {
-            value: 'snowpack',
-            label: 'Snowpack'
-        }
-    ]
-}];
+// {
+//     question_name: 'frontend_build_tool',
+//     question: 'Choose a build tool',
+//     type: 'select',
+//     logo_name: 'frontend_build_tool',
+//     options: [
+//         {
+//             value: 'vite',
+//             label: 'Vite'
+//         },
+//         {
+//             value: 'webpack',
+//             label: 'Webpack'
+//         },
+//         {
+//             value: 'rollup',
+//             label: 'Rollup'
+//         },
+//         {
+//             value: 'snowpack',
+//             label: 'Snowpack'
+//         }
+//     ]
+// }
+];
 
 const backendQuestions: QuestionObject[] = [{
     question_name: 'web_server_framework',
@@ -121,57 +126,64 @@ const backendQuestions: QuestionObject[] = [{
             label: 'Hapi'
         },
         {
-            value: 'derby_js',
+            value: 'derby',
             label: 'Derby JS'
         }
     ]
 },
-{
-    question_name: 'database',
-    question: 'Choose a database',
-    type: 'select',
-    options: [
-        {
-            value: 'mysql',
-            label: 'Mysql'
-        },
-        {
-            value: 'postgresql',
-            label: 'PostgreSQL'
-        },
-        {
-            value: 'mongodb',
-            label: 'MongoDB'
-        }
-    ]
-},
-{
-    question_name: 'orm',
-    question: 'Choose an ORM',
-    type: 'select',
-    options: [
-        {
-            value: 'sequelize',
-            label: 'Sequelize'
-        },
-        {
-            value: 'umzug',
-            label: 'Umzug'
-        },
-        {
-            value: 'mongoose',
-            label: 'Mongoose'
-        },
-        {
-            value: 'type_orm',
-            label: 'Type ORM'
-        },
-        {
-            value: 'prisma',
-            label: 'Prisma'
-        }
-    ]
-}];
+/**
+ * @todo: Add database integration in template
+ */
+// {
+//     question_name: 'database',
+//     question: 'Choose a database',
+//     type: 'select',
+//     options: [
+//         {
+//             value: 'mysql',
+//             label: 'Mysql'
+//         },
+//         {
+//             value: 'postgresql',
+//             label: 'PostgreSQL'
+//         },
+//         {
+//             value: 'mongodb',
+//             label: 'MongoDB'
+//         }
+//     ]
+// },
+/**
+ * @todo: Add ORM integration in template
+ */
+// {
+//     question_name: 'orm',
+//     question: 'Choose an ORM',
+//     type: 'select',
+//     options: [
+//         {
+//             value: 'sequelize',
+//             label: 'Sequelize'
+//         },
+//         {
+//             value: 'umzug',
+//             label: 'Umzug'
+//         },
+//         {
+//             value: 'mongoose',
+//             label: 'Mongoose'
+//         },
+//         {
+//             value: 'type_orm',
+//             label: 'Type ORM'
+//         },
+//         {
+//             value: 'prisma',
+//             label: 'Prisma'
+//         }
+//     ]
+// }
+];
 
 const newProjectQuestions: QuestionObject = {
     question_name: 'type_of_app',
@@ -375,8 +387,11 @@ const formFields: {
     ]
 };
 
+const nopalmGitHubPath = 'https://github.com/existentialcoder/nopalm';;
+
 export {
     newProjectQuestions,
     dummyPackages,
-    formFields
+    formFields,
+    nopalmGitHubPath
 };

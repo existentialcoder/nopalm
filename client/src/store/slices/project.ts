@@ -2,23 +2,20 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import Dataservice from '../../api/Dataservice';
 
-import { EmptyProjectStateTypes, NotificationType, NewProjectDefaults, NewProjectDetailsProps, ProjectDetailsProps } from '../../helpers/types';
+import { EmptyProjectStateTypes, NotificationType, NewProjectDefaults, NewProjectDetailsProps, ProjectDetailsProps, ProjectDirectory } from '../../helpers/types';
 
 import { RootState } from '../store';
 
 interface ProjectState {
 	projectDetails: ProjectDetailsProps,
-	/**
-	 * If this takes a value, we can conclude that a project is empty (or invalid)
-	 * forcing user to create new project or change the dir
-	 * Seperate flag is reduntant
-	 */
 	emptyProjectStateType: EmptyProjectStateTypes,
 	newProjectDefaults: NewProjectDefaults,
 	shouldShowSaveButton: boolean,
 	isProjectSaveLoading: boolean,
 	isNewProject: boolean,
-	newProjectDetails: NewProjectDetailsProps
+	newProjectDetails: NewProjectDetailsProps,
+	allProjectDirectoryPaths: ProjectDirectory[],
+	currentProjectDirectoryPath: string
 };
 
 const newProjectDefaults = {
@@ -30,22 +27,31 @@ const newProjectDefaults = {
 };
 
 const initialState: ProjectState = {
-	projectDetails: {
-
-	},
+	projectDetails: {},
 	emptyProjectStateType: '',
 	newProjectDefaults,
 	shouldShowSaveButton: false,
 	isProjectSaveLoading: false,
 	isNewProject: false,
-	newProjectDetails: {}
+	newProjectDetails: {},
+	allProjectDirectoryPaths: [],
+	currentProjectDirectoryPath: ''
 };
 
-export const fetchAndSetProjectDetails = createAsyncThunk('project/fetchAndSetProjectDetails', async () => {
-	const projectDetails = await Dataservice.getProjectDetails();
+export const fetchAndSetProjectDetails = createAsyncThunk<
+	{ project: ProjectDetailsProps, isEmptyDir: boolean, defaults: NewProjectDefaults, allProjectDirectories: ProjectDirectory[] },
+	void,
+	{ state: RootState }
+>(
+	'project/fetchAndSetProjectDetails',
+	async (_, { getState }) => {
+		const state = getState();
 
-	return projectDetails;
-});
+		const projectDetails = await Dataservice.getProjectDetails(state.project.currentProjectDirectoryPath);
+	
+		return projectDetails;
+	}
+);
 
 type NotifyFunctionType = (message: string, description: string, type: NotificationType) => void;
 
@@ -56,11 +62,13 @@ export const saveProjectDetails = createAsyncThunk<
 >('project/saveProjectDetails', async (notify, { getState }) => {
 	const state = getState();
 
+	const currentProjectDirectoryPath = state.project.currentProjectDirectoryPath;
+
 	const projectDetailsToSave = state.project.isNewProject ? state.project.newProjectDetails : state.project.projectDetails;
 
 	const projectSaveMethod = state.project.isNewProject ? Dataservice.createNewProject : Dataservice.updateProject;
 
-	const result = await projectSaveMethod(projectDetailsToSave);
+	const result = await projectSaveMethod(currentProjectDirectoryPath, projectDetailsToSave);
 
 	return { result, notify };
 });
@@ -80,11 +88,14 @@ const projectSlice = createSlice({
 		},
 		setIsProjectSaveLoading: (state, action) => {
 			state.isProjectSaveLoading = action.payload;
+		},
+		setCurrentProjectDirectoryPath: (state, action) => {
+			state.currentProjectDirectoryPath = action.payload;
 		}
 	},
 	extraReducers: (builder) => {
 		builder.addCase(fetchAndSetProjectDetails.fulfilled, (state, action) => {
-			const { project, isEmptyDir, defaults } = action.payload;
+			const { project, isEmptyDir, defaults, allProjectDirectories } = action.payload;
 
 			if (Object.keys(project).length === 0) {
 				state.emptyProjectStateType = isEmptyDir ? 'not_found' : 'invalid';
@@ -99,8 +110,12 @@ const projectSlice = createSlice({
 					state.newProjectDefaults = defaults;
 				}
 			} else {
+				debugger;
 				state.projectDetails = project;
 				state.isNewProject = false;
+				state.emptyProjectStateType = '';
+				state.newProjectDefaults = {};
+				state.allProjectDirectoryPaths = allProjectDirectories;
 			}
 		}).addCase(saveProjectDetails.fulfilled, (state, action) => {
 			state.isProjectSaveLoading = false;
@@ -123,6 +138,6 @@ const projectSlice = createSlice({
 	},
 });
 
-export const { setShouldShowSaveButton, setProjectDetails, setNewProjectDetails, setIsProjectSaveLoading } = projectSlice.actions;
+export const { setShouldShowSaveButton, setProjectDetails, setNewProjectDetails, setIsProjectSaveLoading, setCurrentProjectDirectoryPath } = projectSlice.actions;
 
 export default projectSlice.reducer;

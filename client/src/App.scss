@@ -1,13 +1,39 @@
-
 .ant-menu-item {
     margin-bottom: 40px !important;
     margin-top: 20px !important;
+}
+
+.logo-dir-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    .current-directory-picker {
+        display: flex;
+
+        .current-directory {
+            margin-right: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .directory-picker {
+            margin-right: 35px;
+            display: flex;
+            align-items: center;
+
+            .ant-select {
+                width: 125px;
+            }
+        }
+    }
 }
 
 
 .footer-container {
     display: flex;
     justify-content: center;
+
     .contact {
         margin-left: 10px;
     }

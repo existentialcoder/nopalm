@@ -1,0 +1,17 @@
+{
+    "name": "derby-ts-app",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "ts-node src/",
+        "dev": "node src/"
+    },
+    "dependencies": {
+        "derby": "^2.3.1"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.2",
+        "typescript": "^5.3.3",
+        "ts-node": "^10.9.2",
+        "@types/node": "^20.10.2"
+    }
+}
