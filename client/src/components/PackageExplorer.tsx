@@ -1,6 +1,6 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 
-import { Space, Input, notification } from 'antd'
+import { Space, Input } from 'antd'
 
 import './PackageExplorer.scss';
 
@@ -43,8 +43,8 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
 
     const listOfNewPackagesToInstall = useSelector((state: RootState) => state.package.listOfNewPackagesToInstall);
 
-    async function callAndSetSearchResults(q: string) {
-        const result = await Dataservice.searchPackages(q);
+    async function callAndSetSearchResults(q: string, dir: string) {
+        const result = await Dataservice.searchPackages(q, dir);
 
         setEmptySearchResult(result.length === 0);
 
@@ -56,7 +56,7 @@ const PackageExplorer: React.FC<PackageExplorerProps> = forwardRef((props: Packa
         setSearchClicked(true);
         setSearchResultsLoading(true);
 
-        await callAndSetSearchResults(value);
+        await callAndSetSearchResults(value, currentProjectDirectoryPath);
 
         setSearchResultsLoading(false);
     };

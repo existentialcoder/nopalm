@@ -19,7 +19,7 @@ const imageLogos = {
 };
 
 interface BrandLogoProps {
-    name: string,
+    name: keyof typeof imageLogos,
 }
 
 const BrandLogo: React.FC<BrandLogoProps> = (props: BrandLogoProps) => {

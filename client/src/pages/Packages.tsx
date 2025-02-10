@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Flex, Button, Modal, Empty } from 'antd';
+import { Button, Modal, Empty } from 'antd';
 
 import { useDispatch, useSelector } from 'react-redux';
 
