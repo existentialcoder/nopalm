@@ -35,6 +35,7 @@ import { nopalmGitHubPath } from './helpers/constants';
 import Select from 'antd/es/select';
 
 import { fetchAndSetProjectDetails, setCurrentProjectDirectoryPath } from './store/slices/project';
+
 import { fetchAndSetInstalledPackages, setPackagesLoading } from './store/slices/packages';
 
 const { Header, Content, Sider } = Layout;
@@ -80,17 +81,8 @@ const App: React.FC = () => {
 
   const allProjectDirectoryPaths = useSelector((state: RootState) => state.project.allProjectDirectoryPaths);
 
-  function routeChangeHandler() {
-    const currentPath = window.location.pathname.slice(1);
-
-    const pathToSet = currentPath === '' ? 'project_details' : currentPath;
-
-    dispatch(setCurrentActiveRoute(pathToSet));
-  }
-
   async function directoryPathChangeHandler(inp: string) {
     await dispatch(setCurrentProjectDirectoryPath(inp));
-    debugger;
     // Retrieve and update project details always when directory path changes
     await dispatch(fetchAndSetProjectDetails());
 
@@ -114,6 +106,13 @@ const App: React.FC = () => {
   }
 
   useEffect(() => {
+    const routeChangeHandler = () => {
+      const currentPath = window.location.pathname.slice(1);
+
+      const pathToSet = currentPath === '' ? 'project_details' : currentPath;
+
+      dispatch(setCurrentActiveRoute(pathToSet));
+    }
     routeChangeHandler();
   }, []);
 

@@ -60,15 +60,15 @@ export type QuestionObject = {
     question: string,
     tooltip_message?: string,
     type: 'select' | 'switch',
-    question_name: string,
+    question_name: NewProjectQuestion,
     logo_name?: string,
     options: Option[]
 };
 
 export interface QuestionProps {
     questionObj: QuestionObject | undefined;
-    answer: string,
-    answerHandler: (value: string, options: any, questionName: string) => void;
+    answer: string | boolean | undefined,
+    answerHandler: (value: string | boolean, questionName: NewProjectQuestion) => void;
 }
 
 export interface PackageProps {
@@ -140,28 +140,31 @@ export interface NewProjectTourProps {
     consentedForNewProject: boolean
 }
 
-
 export interface NewProjectDefaults {
     name?: string,
     homepage?: string,
     bugs?: string,
     author?: string,
     repository?: string
-};
+}
 
 export interface NewProjectDetailsProps extends NewProjectDefaults {
     type_of_app?: string,
+    type_of_web_app?: string,
     cli_utility_package?: string,
     linter?: string,
     ts_preference?: boolean,
     frontend_framework?: string,
     frontend_build_tool?: string,
     web_server_framework?: string,
+    unit_test_framework?: string,
     database?: string,
     orm?: string
 }
 
-export type NewProjectQuestion = keyof NewProjectDetailsProps;
+export type NewProjectQuestion = 'type_of_app' | 'type_of_web_app' | 'cli_utility_package' | 'linter'
+    | 'ts_preference' | 'frontend_framework' |'frontend_build_tool' | 'web_server_framework'
+    | 'database' | 'orm' | 'unit_test_framework';
 
 export interface ProjectDetailsFormProps {
     projectDetails: ProjectDetailsProps

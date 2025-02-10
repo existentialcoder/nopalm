@@ -22,10 +22,10 @@ async function getInstalledPackages(dir: string): Promise<InstalledPackageProps[
     return packages;
 }
 
-async function searchPackages(q: string) {
+async function searchPackages(q: string, dir: string) {
     const urlPath = 'packages/search';
 
-    const result = await fetch(`${API_BASE_URL}/${urlPath}?q=${q}`);
+    const result = await fetch(`${API_BASE_URL}/${urlPath}?q=${q}&dir=${dir}`);
 
     const { packages } = await result.json();
 

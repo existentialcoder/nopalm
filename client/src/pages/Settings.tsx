@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Collapse, Tooltip, Select, theme, Checkbox, GetProp } from 'antd';
+import { Collapse, Tooltip, Select, theme, Checkbox } from 'antd';
 
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
 
@@ -196,8 +196,8 @@ const Settings: React.FC = () => {
         }
     ]);
 
-    const onCollapseCheckChange: GetProp<typeof Checkbox.Group, 'onChange'> = (checkedValues) => {
-        setCollapseAllSettings(checkedValues.target.checked);
+    const onCollapseCheckChange = (isChecked: boolean) => {
+        setCollapseAllSettings(isChecked);
     };
 
     return (
@@ -205,7 +205,7 @@ const Settings: React.FC = () => {
             <div className='title-container'>
                 Settings
             </div>
-            <Checkbox style={{ marginTop: '15px' }} checked={collapseAllSettings} onChange={onCollapseCheckChange}>
+            <Checkbox style={{ marginTop: '15px' }} checked={collapseAllSettings} onChange={(checkedValues) => onCollapseCheckChange(checkedValues.target.checked)}>
                 Collapse all
             </Checkbox>
             <div className='settings-box'>

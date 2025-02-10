@@ -16,12 +16,12 @@ const Question: React.FC<QuestionProps> = ({ questionObj, answer, answerHandler 
                     style={{ width: 150 }}
                     value={answer}
                     options={questionObj.options}
-                    onSelect={(...args) => answerHandler(...args, questionObj.question_name)}
+                    onSelect={(selectedValue) => answerHandler(selectedValue, questionObj.question_name)}
                 />
             case 'switch':
                 return <Switch
                     checkedChildren={questionObj.options[1].label} unCheckedChildren={questionObj.options[0].label}
-                    onChange={(checked) => answerHandler(questionObj.options[checked ? 1 : 0].value, undefined, questionObj.question_name)}
+                    onChange={(checked) => answerHandler(questionObj.options[checked ? 1 : 0].value, questionObj.question_name)}
                     checked={answer === questionObj.options[1].value} />
             default:
                 return '';

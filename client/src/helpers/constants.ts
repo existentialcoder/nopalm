@@ -10,10 +10,6 @@ const linter: QuestionObject = {
             label: 'ESLint'
         },
         {
-            value: 'prettier',
-            label: 'Prettier'
-        },
-        {
             value: 'jshint',
             label: 'JSHint'
         }
@@ -387,7 +383,7 @@ const formFields: {
     ]
 };
 
-const nopalmGitHubPath = 'https://github.com/existentialcoder/nopalm';;
+const nopalmGitHubPath = 'https://github.com/existentialcoder/nopalm';
 
 export {
     newProjectQuestions,

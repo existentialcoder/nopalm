@@ -16,7 +16,7 @@ interface ProjectState {
 	newProjectDetails: NewProjectDetailsProps,
 	allProjectDirectoryPaths: ProjectDirectory[],
 	currentProjectDirectoryPath: string
-};
+}
 
 const newProjectDefaults = {
 	name: '',
@@ -110,7 +110,6 @@ const projectSlice = createSlice({
 					state.newProjectDefaults = defaults;
 				}
 			} else {
-				debugger;
 				state.projectDetails = project;
 				state.isNewProject = false;
 				state.emptyProjectStateType = '';

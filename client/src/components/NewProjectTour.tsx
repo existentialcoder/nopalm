@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 
-import Question from '../components/Question';
+import { FormInstance, Steps } from 'antd';
 
 import { newProjectQuestions } from '../helpers/constants';
 
-import { FormInstance, Steps } from 'antd';
-
 import { NewProjectQuestion, QuestionObject } from '../helpers/types';
+
+/** Components imports */
+import Question from './Question';
 
 import ProjectDetailsForm from './ProjectDetailsForm';
 
@@ -36,7 +37,7 @@ const NewProjectTour: React.FC<{ setFormInstances: (formInstances: FormInstance[
 
         const [questionsToBeRendered, setQuestionsToBeRendered] = useState<NewProjectQuestion[]>(['type_of_app']);
 
-        const modifyProjectDetails = (value: string, _options: any, questionName: string) => {
+        const modifyProjectDetails = (value: string | boolean, questionName: NewProjectQuestion) => {
             const questionIndex = questionsToBeRendered.findIndex(qName => qName === questionName);
 
             if (questionIndex === 0 || (questionIndex === 1 && newProjectDetails['type_of_app'] === 'web_app')) {
@@ -52,11 +53,13 @@ const NewProjectTour: React.FC<{ setFormInstances: (formInstances: FormInstance[
         };
 
         const getQuestionsToAdd = (currentQuestionName: NewProjectQuestion, selectedOptionValue: string) => {
-            const findQuestion = (question: QuestionObject): string[] | undefined => {
+            const findQuestion = (question: QuestionObject): NewProjectQuestion[] | undefined => {
                 if (question.question_name === currentQuestionName) {
                     const selectedOption = question.options.find((option) => option.value === selectedOptionValue);
                     if (selectedOption && selectedOption.questions && selectedOption.questions.length > 0) {
-                        return selectedOption.questions.map(({ question_name }) => question_name);
+                        const result = selectedOption.questions.map(({ question_name }) => question_name);
+
+                        return result;
                     }
                 } else {
                     for (const option of question.options) {
@@ -132,8 +135,8 @@ const NewProjectTour: React.FC<{ setFormInstances: (formInstances: FormInstance[
         useEffect(() => {
             const poppedQuestion = questionsToBeRendered[questionsToBeRendered.length - 1];
 
-            if (newProjectDetails[poppedQuestion]) {
-                const questionsToAdd = getQuestionsToAdd(poppedQuestion, newProjectDetails[poppedQuestion]);
+            if (typeof newProjectDetails[poppedQuestion] === 'string') {
+                const questionsToAdd = getQuestionsToAdd(poppedQuestion, newProjectDetails[poppedQuestion] as string);
 
                 if (questionsToAdd !== undefined) {
                     setQuestionsToBeRendered(

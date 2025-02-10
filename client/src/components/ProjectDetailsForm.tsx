@@ -6,7 +6,7 @@ import './ProjectDetailsForm.scss'
 
 import { FormFieldProps } from '../helpers/types';
 
-import { Form, Collapse, Input, Select, Switch, Tooltip, Checkbox, GetProp, FormInstance } from 'antd';
+import { Form, Collapse, Input, Select, Switch, Tooltip, Checkbox, FormInstance } from 'antd';
 
 import { InfoCircleOutlined } from '@ant-design/icons';
 
@@ -15,6 +15,7 @@ import { formFields } from '../helpers/constants';
 import { AppDispatch, RootState } from '../store/store';
 
 import { setNewProjectDetails, setProjectDetails } from '../store/slices/project';
+import { CheckboxChangeEvent } from 'antd/es/checkbox';
 
 const { TextArea } = Input;
 
@@ -29,16 +30,8 @@ const ProjectDetailsForm = (props: { setFormInstances: (formInstances: FormInsta
 
     const [collapseAll, setCollapseAll] = useState(false);
 
-    function setFieldChangeInStorage(formField: FormFieldProps, val: any) {
-        let valueToSet = ['switch'].includes(formField.type) ? val : val.target.value;
-
-        if (formField.type === 'select') {
-            const allSelectedItems = Array.from(val.currentTarget.querySelectorAll('.ant-select-selection-item')).map(item => item.textContent);
-
-            valueToSet = formField.tags === true ? allSelectedItems : allSelectedItems[0]
-                ;
-        }
-
+     
+    function setFieldChangeInStorage(formField: FormFieldProps, valueToSet: string | boolean | string[]) {
         const handler = isNewProject ? setNewProjectDetails : setProjectDetails;
 
         return dispatch(handler({
@@ -50,12 +43,22 @@ const ProjectDetailsForm = (props: { setFormInstances: (formInstances: FormInsta
     const renderFormField = (formField: FormFieldProps) => {
         switch (formField.type) {
             case 'input':
-                return <Input onBlur={(val) => setFieldChangeInStorage(formField, val)} addonBefore={formField.addon_before || ''} maxLength={formField.max_length} placeholder={formField.placeholder} />;
+                return <Input onBlur={(val) => setFieldChangeInStorage(formField, val.target.value)} addonBefore={formField.addon_before || ''} maxLength={formField.max_length} placeholder={formField.placeholder} />;
             case 'textarea':
-                return <TextArea onBlur={(val) => setFieldChangeInStorage(formField, val)} placeholder={formField.placeholder} rows={4} />;
+                return <TextArea onBlur={(val) => setFieldChangeInStorage(formField, val.target.value)} placeholder={formField.placeholder} rows={4} />;
             case 'select':
                 return <Select placeholder={formField.placeholder}
-                    onBlur={(val) => setFieldChangeInStorage(formField, val)}
+                    onBlur={
+                        (val) => {
+                            const allSelectedItems = Array.from(
+                                val.currentTarget.querySelectorAll('.ant-select-selection-item')
+                            ).map(item => item.textContent || '');
+        
+                            const valueToSet = formField.tags === true ? allSelectedItems : allSelectedItems[0];
+                            
+                            setFieldChangeInStorage(formField, valueToSet)
+                        }
+                    }
                     mode={formField.tags ? 'tags' : (formField.multiple ? 'multiple' : undefined)}
                     options={formField.options}
                 />;
@@ -137,7 +140,7 @@ const ProjectDetailsForm = (props: { setFormInstances: (formInstances: FormInsta
         }
     ];
 
-    const onCollapseCheckChange: GetProp<typeof Checkbox.Group, 'onChange'> = (checkedValues) => {
+    const onCollapseCheckChange = (checkedValues: CheckboxChangeEvent) => {
         setCollapseAll(checkedValues.target.checked);
     };
 

@@ -14,7 +14,7 @@ interface AppState {
   isMainLoading: boolean,
   isDark: boolean,
   selectedPrimaryColor: string
-};
+}
 
 const initialState: AppState = {
   globalSettings: {

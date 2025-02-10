@@ -12,7 +12,7 @@ interface PackageState {
 	isEmptyPackageList: boolean,
 	isPackageSaveLoading: boolean,
 	listOfNewPackagesToInstall: PackageToInstallProps[]
-};
+}
 
 const initialState: PackageState = {
 	installedPackages: [],
@@ -22,6 +22,7 @@ const initialState: PackageState = {
 	listOfNewPackagesToInstall: []
 };
 
+// @ts-expect-error - Types are not defined for createAsyncThunk
 export const fetchAndSetInstalledPackages = createAsyncThunk<InstalledPackageProps[], void, { state: RootState }>(
 	'packages/fetchAndSetInstalledPackages',
 	async (_, { getState }) => {
