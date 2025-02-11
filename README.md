@@ -31,7 +31,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## To run / develop locally
 
 #### Pre installed requirements
-- **node > 10**
+- **node >= 20**
 - **npm** or **yarn**
 #### Steps
 * Clone the repository
