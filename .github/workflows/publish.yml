@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   versioning:
@@ -14,17 +11,18 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
 
-      # Install dependencies
+      # Install all dependencies (including devDependencies for lint/test/build)
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --production
+        run: yarn install
 
       # Run linting
       - name: Run lint
@@ -43,14 +41,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          yarn release
+        run: yarn release
 
-  # Optionally, you can include a job to deploy to npm
   publish:
-    needs: release
+    needs: versioning
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install production dependencies
+        run: yarn install --frozen-lockfile --production
+
       # Publish to npm
       - name: Publish to npm
         run: yarn publish --non-interactive
