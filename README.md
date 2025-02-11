@@ -1,10 +1,9 @@
-<!-- [![Build Status: Linux](https://travis-ci.com/sindresorhus/got.svg?branch=master)](https://travis-ci.com/github/sindresorhus/got) -->
-<!-- [![Downloads](https://img.shields.io/npm/dm/got.svg)](https://npmjs.com/got) -->
-<!-- [![Install size](https://packagephobia.now.sh/badge?p=got)](https://packagephobia.now.sh/result?p=got) -->
-
 <div align=center> <img src='./images/nopalm.png' width="50%" height="50%"> </div>
 
 > Manage your node projects from user interface
+[![Downloads](https://img.shields.io/npm/dm/nopalm.svg)](https://npmjs.com/nopalm)
+[![Install size](https://packagephobia.now.sh/badge?p=nopalm)](https://packagephobia.now.sh/result?nopalm)
+
 
 ## RATIONALE
 
