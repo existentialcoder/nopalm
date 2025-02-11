@@ -4,7 +4,6 @@
 [![Downloads](https://img.shields.io/npm/dm/nopalm.svg)](https://npmjs.com/nopalm)
 [![Install size](https://packagephobia.now.sh/badge?p=nopalm)](https://packagephobia.now.sh/result?nopalm)
 
-
 ## RATIONALE
 
 * Having trouble in creating and managing multiple Node.Js projects during local development? Prefer using user interfaces over CLIs for larger project management?

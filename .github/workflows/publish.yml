@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       # Checkout the code
       - name: Checkout code
@@ -38,11 +38,6 @@ jobs:
       # Build production version of react client
       - name: Build client
         run: yarn build-client
-
-      # Verify NPM_TOKEN
-      - name: Verify NPM_TOKEN
-        run: |
-          curl -H "Authorization: Bearer $NPM_TOKEN" https://registry.npmjs.org/-/whoami
 
       # Semantic release step: Automatically determine the version and release
       - name: Semantic release the package
