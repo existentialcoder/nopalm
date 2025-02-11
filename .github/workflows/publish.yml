@@ -1,0 +1,46 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Automate versioning and changelog
+        id: version
+        uses: actions-ecosystem/action-update-semver@v2
+        with:
+          update_type: auto # Options: major, minor, patch, or auto
+
+      - name: Set Yarn version
+        run: yarn version --new-version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+
+      - name: Publish to NPM
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn publish --non-interactive
+
+      - name: Push changes back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json yarn.lock
+          git commit -m "chore(release): publish ${{ steps.version.outputs.new_version }}"
+          git tag v${{ steps.version.outputs.new_version }}
+          git push --follow-tags
