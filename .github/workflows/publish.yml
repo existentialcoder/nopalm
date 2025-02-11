@@ -4,27 +4,28 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  versioning:
+  publish_package:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       # Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
 
-      # Install dependencies
+      # Install all dependencies (including devDependencies for lint/test/build)
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --production
+        run: yarn install
 
       # Run linting
       - name: Run lint
@@ -38,21 +39,13 @@ jobs:
       - name: Build client
         run: yarn build-client
 
-      # Semantic release step: Automatically determine the version and release
-      - name: Semantic Release for versioning
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Verify NPM_TOKEN
+      - name: Verify NPM_TOKEN
         run: |
-          yarn release
+          curl -H "Authorization: Bearer $NPM_TOKEN" https://registry.npmjs.org/-/whoami
 
-  # Optionally, you can include a job to deploy to npm
-  publish:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      # Publish to npm
-      - name: Publish to npm
-        run: yarn publish --non-interactive
+      # Semantic release step: Automatically determine the version and release
+      - name: Semantic release the package
+        run: yarn release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
