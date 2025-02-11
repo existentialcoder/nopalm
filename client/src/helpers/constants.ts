@@ -1,20 +1,20 @@
 import { FormFieldProps, InstalledPackageProps, QuestionObject } from "./types";
 
-const linter: QuestionObject = {
-    question_name: 'linter',
-    question: 'Choose a code linter',
-    type: 'select',
-    options: [
-        {
-            value: 'eslint',
-            label: 'ESLint'
-        },
-        {
-            value: 'jshint',
-            label: 'JSHint'
-        }
-    ]
-};
+// const linter: QuestionObject = {
+//     question_name: 'linter',
+//     question: 'Choose a code linter',
+//     type: 'select',
+//     options: [
+//         {
+//             value: 'eslint',
+//             label: 'ESLint'
+//         },
+//         {
+//             value: 'jshint',
+//             label: 'JSHint'
+//         }
+//     ]
+// };
 
 const typeScriptInclusion: QuestionObject = {
     question_name: 'ts_preference',
@@ -33,22 +33,22 @@ const typeScriptInclusion: QuestionObject = {
     ]
 };
 
-const unitTestingFramework: QuestionObject = {
-    question_name: 'unit_test_framework',
-    logo_name: '',
-    type: 'select',
-    question: 'Choose a unit testing framework',
-    options: [
-        {
-            value: 'jest',
-            label: 'Jest'
-        },
-        {
-            value: 'mocha',
-            label: 'Mocha'
-        },
-    ]
-};
+// const unitTestingFramework: QuestionObject = {
+//     question_name: 'unit_test_framework',
+//     logo_name: '',
+//     type: 'select',
+//     question: 'Choose a unit testing framework',
+//     options: [
+//         {
+//             value: 'jest',
+//             label: 'Jest'
+//         },
+//         {
+//             value: 'mocha',
+//             label: 'Mocha'
+//         },
+//     ]
+// };
 
 const frontendQuestions: QuestionObject[] = [{
     question_name: 'frontend_framework',
@@ -226,8 +226,11 @@ const newProjectQuestions: QuestionObject = {
                     ]
                 },
                 typeScriptInclusion,
-                linter,
-                unitTestingFramework
+                /**
+                 * @todo - Intergate linter and testing framework
+                 */
+                // linter,
+                // unitTestingFramework
             ]
         },
         {
@@ -246,8 +249,11 @@ const newProjectQuestions: QuestionObject = {
                             questions: [
                                 ...frontendQuestions,
                                 typeScriptInclusion,
-                                linter,
-                                unitTestingFramework
+                                /**
+                                 * @todo - Intergate linter and testing framework
+                                */
+                                // linter,
+                                // unitTestingFramework
                             ]
                         },
                         {
@@ -256,8 +262,11 @@ const newProjectQuestions: QuestionObject = {
                             questions: [
                                 ...backendQuestions,
                                 typeScriptInclusion,
-                                linter,
-                                unitTestingFramework
+                                /**
+                                 * @todo - Intergate linter and testing framework
+                                */
+                                // linter,
+                                // unitTestingFramework
                             ]
                         },
                         {
@@ -267,8 +276,11 @@ const newProjectQuestions: QuestionObject = {
                                 ...frontendQuestions,
                                 ...backendQuestions,
                                 typeScriptInclusion,
-                                linter,
-                                unitTestingFramework
+                               /**
+                                 * @todo - Intergate linter and testing framework
+                                */
+                                // linter,
+                                // unitTestingFramework
                             ]
                         },
                     ]
