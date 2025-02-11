@@ -5,6 +5,9 @@
   "bin": {
     "nopalm": "lib/index.js"
   },
+  "engines": {
+    "node": "20"
+  },
   "type": "module",
   "dependencies": {
     "axios": "^1.6.8",
@@ -52,11 +55,13 @@
     "local-development"
   ],
   "scripts": {
+    "lint": "echo \"No lint for now\"",
     "test": "echo \"No tests for now\"",
-    "copy-build": "cp -ar client/dist/. public/",
-    "build": "rm -rf build/ && cd client/ && yarn build && cd .. && yarn copy-build",
+    "copy-client-build": "cp -ar client/dist/. public/",
+    "build-client": "rm -rf build/ && cd client/ && yarn build && cd .. && yarn copy-client-build",
     "postinstall": "node ./lib/scripts/addon --methodToExecute='createCopiedAddonFolder'",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "release": "semantic-release"
   },
   "repository": {
     "type": "git",

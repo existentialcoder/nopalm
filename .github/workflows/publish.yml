@@ -1,46 +1,58 @@
-name: Publish to NPM
+name: Publish nopalm to npm registry
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  release:
+  versioning:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Setup Node.js
+      # Set up Node.js environment
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-          cache: 'yarn'
 
+      # Install dependencies
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --production
 
-      - name: Automate versioning and changelog
-        id: version
-        uses: actions-ecosystem/action-update-semver@v2
-        with:
-          update_type: auto # Options: major, minor, patch, or auto
+      # Run linting
+      - name: Run lint
+        run: yarn lint
 
-      - name: Set Yarn version
-        run: yarn version --new-version ${{ steps.version.outputs.new_version }} --no-git-tag-version
+      # Run tests
+      - name: Run tests
+        run: yarn test
 
-      - name: Publish to NPM
+      # Build production version of react client
+      - name: Build client
+        run: yarn build-client
+
+      # Semantic release step: Automatically determine the version and release
+      - name: Semantic Release for versioning
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          yarn release
+
+  # Optionally, you can include a job to deploy to npm
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      # Publish to npm
+      - name: Publish to npm
+        run: yarn publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn publish --non-interactive
-
-      - name: Push changes back to repo
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json yarn.lock
-          git commit -m "chore(release): publish ${{ steps.version.outputs.new_version }}"
-          git tag v${{ steps.version.outputs.new_version }}
-          git push --follow-tags
