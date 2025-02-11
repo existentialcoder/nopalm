@@ -119,7 +119,7 @@ const App: React.FC = () => {
   return (
     <Layout hasSider style={{ minHeight: '100vh', maxHeight: '100vh', overflow: 'scroll' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}
-        style={{ overflow: 'auto', height: '100vh', position: 'sticky', top: 0, left: 0 }}>
+        style={{ overflow: 'auto', position: 'sticky', top: 0, left: 0 }}>
         <Menu style={{ minHeight: '92vh' }} defaultSelectedKeys={['project_details']}
           selectedKeys={[currentActiveRoute]}
           onSelect={(item) => dispatch(setCurrentActiveRoute(item.key))}
