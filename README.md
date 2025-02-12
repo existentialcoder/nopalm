@@ -2,7 +2,7 @@
 
 > Manage your node projects from user interface
 [![Downloads](https://img.shields.io/npm/dm/nopalm.svg)](https://npmjs.com/nopalm)
-[![Install size](https://packagephobia.now.sh/badge?p=nopalm)](https://packagephobia.now.sh/result?nopalm)
+[![Install size](https://packagephobia.com/badge?p=nopalm)](https://packagephobia.com/result?p=nopalm)
 
 ## RATIONALE
 
@@ -17,12 +17,13 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## USAGE
 
-* Install the npm package globally and run the local server inside any node project directory / empty directory
+* Install the npm package globally and run the it inside any node project directory / empty directory
    ```shell
     npm i -g nopalm
-    cd /path/to/target_dir && nopalm
+    cd /path/to/target_dir
+    nopalm
    ```
-* Alternatively, use npx to save the trouble of installing as well. In an empty or node project directory, run
+* Alternatively, use npx. In an empty or node project directory, run
     ```shell
     npx nopalm
     ```
@@ -46,7 +47,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 * Run the react client
     ```shell
     cd client
-    npm run dev'
+    npm run dev
 * Run the server in an existing node project directly without a script
     ```shell
     cd /path/to/target_node_project
