@@ -2,7 +2,7 @@
   "name": "nopalm",
   "description": "One stop graphical solution to create and manage your local Node.Js projects end to end.",
   "main": "lib/index.js",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "bin": {
     "nopalm": "lib/index.js"
   },

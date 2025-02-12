@@ -1,3 +1,10 @@
+## [1.0.10](https://github.com/existentialcoder/nopalm/compare/v1.0.9...v1.0.10) (2025-02-12)
+
+
+### Bug Fixes
+
+* **ui_issues:** fix ui issues for other browsers ([a0b9de3](https://github.com/existentialcoder/nopalm/commit/a0b9de3dba0f39dbfe221b49e360ccb0951adae1))
+
 ## [1.0.9](https://github.com/existentialcoder/nopalm/compare/v1.0.8...v1.0.9) (2025-02-11)
 
 
