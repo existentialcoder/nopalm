@@ -1,3 +1,10 @@
+## [1.0.11](https://github.com/existentialcoder/nopalm/compare/v1.0.10...v1.0.11) (2025-02-12)
+
+
+### Bug Fixes
+
+* minor readme tweaks ([a81744d](https://github.com/existentialcoder/nopalm/commit/a81744d17402c69d829b146db9e28dcf650e964a))
+
 ## [1.0.10](https://github.com/existentialcoder/nopalm/compare/v1.0.9...v1.0.10) (2025-02-12)
 
 
