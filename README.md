@@ -4,6 +4,22 @@
 [![Downloads](https://img.shields.io/npm/dm/nopalm.svg)](https://npmjs.com/nopalm)
 [![Install size](https://packagephobia.com/badge?p=nopalm)](https://packagephobia.com/result?p=nopalm)
 
+
+## IN ACTION
+### Creating new project
+<img width="1919" height="870" alt="image" src="https://github.com/user-attachments/assets/247d5503-6a84-4620-89cb-71d2f0970f98" />
+<img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/3312bf76-84e4-4525-8a9f-6c25ffb40ff3" />
+<img width="1918" height="874" alt="image" src="https://github.com/user-attachments/assets/270b0d19-1487-419e-b041-3f5be0df1588" />
+
+### Updating existing project
+<img width="1919" height="884" alt="image" src="https://github.com/user-attachments/assets/a21c8f32-5dd9-4445-ac64-e755344bef2c" />
+<img width="1919" height="883" alt="image" src="https://github.com/user-attachments/assets/032f29da-f096-49ea-a165-2ade2b42f3db" />
+
+### Update settings
+<img width="1917" height="880" alt="image" src="https://github.com/user-attachments/assets/dbe7f269-5993-4991-beda-5608fa303d58" />
+
+
+
 ## RATIONALE
 
 * Having trouble in creating and managing multiple Node.Js projects during local development? Prefer using user interfaces over CLIs for larger project management?
