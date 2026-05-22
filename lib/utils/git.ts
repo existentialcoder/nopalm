@@ -1,38 +1,31 @@
 import Utils from './common-utils.js';
 
-async function isGitInstalled() {
+async function isGitInstalled(): Promise<boolean> {
     try {
         await Utils.executeCommand('git version');
-
         return true;
-    } catch (ex) {
+    } catch {
         return false;
     }
 }
 
-async function getGlobalUserEmail() {
+async function getGlobalUserEmail(): Promise<string> {
     const command = 'git config --global user.email';
-
     try {
         const result = await Utils.executeCommand(command);
-
         return result;
-    } catch (ex) {
+    } catch {
         return '';
     }
 }
 
-async function getGitRemoteRepoHttpsUrl() {
-    // @ts-ignore
-    const command = `git config --get remote.origin.url`;
-
+async function getGitRemoteRepoHttpsUrl(): Promise<string> {
+    const command = 'git config --get remote.origin.url';
     try {
         const result = await Utils.executeCommand(command);
-
-        const [ remoteUrlHost, remoteUrlRepoPath ] = result.split('@')[1].split(':');
-
+        const [remoteUrlHost, remoteUrlRepoPath] = result.split('@')[1].split(':');
         return `https://${remoteUrlHost}/${remoteUrlRepoPath.split('.')[0]}`;
-    } catch (ex) {
+    } catch {
         return '';
     }
 }
@@ -40,5 +33,5 @@ async function getGitRemoteRepoHttpsUrl() {
 export {
     isGitInstalled,
     getGlobalUserEmail,
-    getGitRemoteRepoHttpsUrl
+    getGitRemoteRepoHttpsUrl,
 };

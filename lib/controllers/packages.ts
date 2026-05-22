@@ -1,99 +1,81 @@
-import { fileURLToPath } from 'url';
-
 import constants from '../constants.js';
 
 import Utils from '../utils/common-utils.js';
 
 import { InvalidProjectError, InvalidRequestBodyError } from '../utils/errors.js';
 
+import { PackageJson, DependencyResult, InstalledPackageResult, Meta, Package } from '../types.js';
+
 const { getPackageDetails, getWebsiteLogo, getPackageJson, getPackagesListFromSearch, changeDirectory, packageOperation: _packageOperation } = Utils;
 
 const { messages } = constants;
 
-async function getInstalledPackagesWithDetails(pJson) {
-  const dependenciesResult = await Promise.all(Object.entries(pJson.dependencies || []).map(async ([depName, installedVersion]) => {
-    const packageDetails = await getPackageDetails(depName);
-
-    const logoImgSrc = await getWebsiteLogo(packageDetails.homepage);
-
-    return {
-      name: packageDetails.name,
-      installed_version: installedVersion,
-      latest_version: packageDetails['dist-tags'].latest,
-      description: packageDetails.description || 'Not available',
-      homepage: packageDetails.homepage,
-      logo: logoImgSrc,
-      versions: Object.keys(packageDetails.versions).reverse(),
-      is_dev: false
-    };
-  }));
-
-  const devDependenciesResult = await Promise.all(Object.entries(pJson.devDependencies || []).map(async ([depName, installedVersion]) => {
-    const packageDetails = await getPackageDetails(depName);
-
-    const logoImgSrc = await getWebsiteLogo(packageDetails.homepage);
-
-    return {
-      name: packageDetails.name,
-      installed_version: installedVersion,
-      latest_version: packageDetails['dist-tags'].latest,
-      description: packageDetails.description || 'Not available',
-      homepage: packageDetails.homepage,
-      logo: logoImgSrc,
-      versions: Object.keys(packageDetails.versions).reverse(),
-      is_dev: true
-    };
-  }));
-
-  return [
-    ...dependenciesResult,
-    ...devDependenciesResult
+async function getInstalledPackagesWithDetails(pJson: PackageJson): Promise<InstalledPackageResult[]> {
+  const allDependencyEntries: [string, string][] = [
+    ...Object.entries(pJson.dependencies || {}),
+    ...Object.entries(pJson.devDependencies || {}),
   ];
+
+  const devDependencyKeys = Object.keys(pJson.devDependencies || {});
+
+  return Promise.all(allDependencyEntries.map(async ([depName, installedVersion]) => {
+    const packageDetails = await getPackageDetails(depName);
+    const logoImgSrc = await getWebsiteLogo(packageDetails.homepage ?? '');
+
+    return {
+      name: packageDetails.name,
+      installed_version: installedVersion,
+      latest_version: packageDetails['dist-tags'].latest,
+      description: packageDetails.description || 'Not available',
+      homepage: packageDetails.homepage ?? '',
+      logo: logoImgSrc,
+      versions: Object.keys(packageDetails.versions).reverse(),
+      is_dev: devDependencyKeys.includes(packageDetails.name),
+    };
+  }));
 }
 
-async function getRelevantPackages(q, dirPath) {
+async function getRelevantPackages(q: string, dirPath: string): Promise<DependencyResult[]> {
   const pJson = await getPackageJson(dirPath);
-  const allInstalledPackageKeys = [...Object.keys(pJson.dependencies || {}), ...Object.keys(pJson.devDependencies || {})]
+  const allInstalledPackageKeys = [
+    ...Object.keys(pJson?.dependencies || {}),
+    ...Object.keys(pJson?.devDependencies || {}),
+  ];
+
   const packagesListFromSearch = (
     await getPackagesListFromSearch(q)
   ).filter(pkg => !allInstalledPackageKeys.includes(pkg.package.name));
 
-  const dependenciesResult = await Promise.all(packagesListFromSearch.map(async (obj) => {
+  return Promise.all(packagesListFromSearch.map(async (obj) => {
     const packageDetails = await getPackageDetails(obj.package.name);
-
-    const logoImgSrc = await getWebsiteLogo(packageDetails.homepage);
+    const logoImgSrc = await getWebsiteLogo(packageDetails.homepage ?? '');
 
     return {
       name: packageDetails.name,
       latest_version: packageDetails['dist-tags'].latest,
       description: packageDetails.description || 'Not available',
-      homepage: packageDetails.homepage,
+      homepage: packageDetails.homepage ?? '',
       logo: logoImgSrc,
-      versions: Object.keys(packageDetails.versions).reverse()
+      versions: Object.keys(packageDetails.versions).reverse(),
     };
   }));
-
-  return dependenciesResult;
 }
 
-const getInstalledPackages = async (dir) => {
+const getInstalledPackages = async (dir: string): Promise<{ packages: InstalledPackageResult[] }> => {
   const pJson = await getPackageJson(dir);
 
-  __debug(import.meta.url, 'Successfully read package.json file');
+  global.__debug?.(import.meta.url, 'Successfully read package.json file');
 
-  if (!pJson) { 
+  if (!pJson) {
     throw new InvalidProjectError(messages.INVALID_PROJECT);
   }
 
   const installedPackagesWithDetails = await getInstalledPackagesWithDetails(pJson);
 
-  return {
-    packages: installedPackagesWithDetails
-  };
+  return { packages: installedPackagesWithDetails };
 };
 
-const packageOperation = async (meta, dir, pkg, operation) => {
-  // Change the directory first
+const packageOperation = async (meta: Meta, dir: string, pkg: Package, operation: string): Promise<boolean> => {
   const parentDir = process.cwd();
   changeDirectory(dir);
 
@@ -105,7 +87,6 @@ const packageOperation = async (meta, dir, pkg, operation) => {
 
   const isSuccess = await _packageOperation(pkg, packageManager, operation);
 
-  // Reset to parent directory
   changeDirectory(parentDir);
 
   if (isSuccess) {

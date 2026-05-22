@@ -1,12 +1,18 @@
 import { join, basename, resolve } from 'path';
 
-import { fileURLToPath } from 'url';
-
 import { isGitInstalled, getGitRemoteRepoHttpsUrl, getGlobalUserEmail } from '../utils/git.js';
 
 import Utils from '../utils/common-utils.js';
 
-const { 
+import {
+  Meta,
+  NewProjectBody,
+  NewProjectDetails,
+  PackageJsonDetails,
+  PackageJson,
+} from '../types.js';
+
+const {
   getTemplateCodePathFromAddon,
   copyFileOrDirectory,
   executeCommand,
@@ -16,10 +22,10 @@ const {
   getAllProjectChildDirectories,
   isEmptyDir,
   changeDirectory,
-  packageOperation
+  packageOperation,
 } = Utils;
 
-async function cliAppProjectSetup(newProjectDetailsBody, dir) {
+async function cliAppProjectSetup(newProjectDetailsBody: NewProjectDetails, dir: string): Promise<void> {
   const cliTemplate = newProjectDetailsBody.projectSetupDetails.cli_utility_package.length > 0
     ? newProjectDetailsBody.projectSetupDetails.cli_utility_package
     : 'default';
@@ -31,58 +37,57 @@ async function cliAppProjectSetup(newProjectDetailsBody, dir) {
   return copyFileOrDirectory(templatePath, dir);
 }
 
-async function webAppProjectSetup(newProjectDetailsBody, packageManager, typeScriptIncluded, dir) {
+async function webAppProjectSetup(
+  newProjectDetailsBody: NewProjectDetails,
+  packageManager: string,
+  typeScriptIncluded: boolean,
+  dir: string
+): Promise<void> {
   const { type_of_web_app: typeOfWebApp } = newProjectDetailsBody.projectSetupDetails;
 
   if (!typeOfWebApp) {
-    // Default web app template
     const templatePath = await getTemplateCodePathFromAddon('web', 'default', false);
-
-    __debug(import.meta.url, `Reading the selected template from path : ${templatePath}`);
-
+    global.__debug?.(import.meta.url, `Reading the selected template from path : ${templatePath}`);
     return copyFileOrDirectory(templatePath, dir);
   }
 
-  const isFrontendIncluded = ['frontend_only', 'fullstack'].includes(typeOfWebApp),
-    isBackendIncluded = ['backend_only', 'fullstack'].includes(typeOfWebApp);
+  const isFrontendIncluded = ['frontend_only', 'fullstack'].includes(typeOfWebApp);
+  const isBackendIncluded = ['backend_only', 'fullstack'].includes(typeOfWebApp);
 
   if (isFrontendIncluded) {
-    __debug(import.meta.url, 'Frontend is included in the project setup details. Creating frontend project under /client directory using vite');
-    const frontendFramework = newProjectDetailsBody.projectSetupDetails.frontend_framework && newProjectDetailsBody.projectSetupDetails.frontend_framework.length > 0
+    global.__debug?.(import.meta.url, 'Frontend is included in the project setup details. Creating frontend project under /client directory using vite');
+    const frontendFramework = newProjectDetailsBody.projectSetupDetails.frontend_framework &&
+      newProjectDetailsBody.projectSetupDetails.frontend_framework.length > 0
       ? newProjectDetailsBody.projectSetupDetails.frontend_framework
       : 'vanilla';
 
-    // Using vite as the default and only build tool for frontend
     const commandToExecute = `${packageManager} create vite@latest -- client --template ${frontendFramework}${typeScriptIncluded ? '-ts' : ''}`;
-
-    await executeCommand(commandToExecute, dir);
+    await executeCommand(commandToExecute);
   }
 
   if (isBackendIncluded) {
-    __debug(import.meta.url, 'Backend is included in the project setup details. Creating backend project using express');
+    global.__debug?.(import.meta.url, 'Backend is included in the project setup details. Creating backend project using express');
     const webServerFramework = newProjectDetailsBody.projectSetupDetails.web_server_framework.length > 0
       ? newProjectDetailsBody.projectSetupDetails.web_server_framework
       : 'default';
 
-    const { ts_preference: typeScriptIncluded } = newProjectDetailsBody.projectSetupDetails;
-
     const templatePath = getTemplateCodePathFromAddon('web/backend', webServerFramework, typeScriptIncluded);
-
     return copyFileOrDirectory(templatePath, `${dir}/server`);
   }
 }
 
-async function defaultProjectSetup(newProjectDetailsBody, dir) {
+async function defaultProjectSetup(newProjectDetailsBody: NewProjectDetails, dir: string): Promise<void> {
   const { ts_preference: typeScriptIncluded } = newProjectDetailsBody.projectSetupDetails;
-
   const templatePath = await getTemplateCodePathFromAddon('default', 'default', typeScriptIncluded);
-
-  __debug(import.meta.url, `Reading the selected template from path : ${templatePath}`);
-
+  global.__debug?.(import.meta.url, `Reading the selected template from path : ${templatePath}`);
   return copyFileOrDirectory(templatePath, dir);
 }
 
-async function initializeProjectWithSelectedTools(newProjectDetailsBody, packageManager, dir) {
+async function initializeProjectWithSelectedTools(
+  newProjectDetailsBody: NewProjectDetails,
+  packageManager: string,
+  dir: string
+): Promise<void> {
   const { ts_preference: typeScriptIncluded } = newProjectDetailsBody.projectSetupDetails;
 
   const initializer = () => {
@@ -91,7 +96,6 @@ async function initializeProjectWithSelectedTools(newProjectDetailsBody, package
         return cliAppProjectSetup(newProjectDetailsBody, dir);
       case 'web_app':
         return webAppProjectSetup(newProjectDetailsBody, packageManager, typeScriptIncluded, dir);
-      // type_of_app not selected. write a default js file
       default:
         return defaultProjectSetup(newProjectDetailsBody, dir);
     }
@@ -101,30 +105,32 @@ async function initializeProjectWithSelectedTools(newProjectDetailsBody, package
 
   if (newProjectDetailsBody.projectSetupDetails.type_of_app !== 'web_app' && typeScriptIncluded) {
     const tsConfigFilePath = await getTsConfigPath();
-
     await copyFileOrDirectory(tsConfigFilePath, join(dir, 'tsconfig.json'));
   }
 }
 
-async function configurePackageJson(projectDetailsBody, dir) {
-  // Get and modify the package.json
-  const pJson = {
+async function configurePackageJson(
+  projectDetailsBody: { packageJsonDetails: Partial<PackageJsonDetails> },
+  dir: string
+): Promise<void> {
+  const pJson: PackageJson = {
     ...(await getPackageJson(dir))
   };
 
-  [
-    'name', 'homepage', 'bugs',
-    'author', 'repository', 'keywords',
-    'description', 'private', 'license'
-  ].forEach(k => {
-    if (projectDetailsBody.packageJsonDetails.hasOwnProperty(k)) {
+  (
+    ['name', 'homepage', 'bugs', 'author', 'repository', 'keywords', 'description', 'private', 'license'] as
+    (keyof PackageJsonDetails)[]
+  ).forEach(k => {
+    if (Object.prototype.hasOwnProperty.call(projectDetailsBody.packageJsonDetails, k)) {
+      const val = projectDetailsBody.packageJsonDetails[k];
+      const pJsonAny = pJson as Record<string, unknown>;
       if (['bugs', 'repository', 'homepage'].includes(k)) {
-        pJson[k] = pJson.hasOwnProperty(k) && typeof pJson[k] === 'object' ? {
-          ...pJson[k],
-          url: projectDetailsBody.packageJsonDetails[k].length > 0 ? `https://${projectDetailsBody.packageJsonDetails[k]}` : ''
-        } : projectDetailsBody.packageJsonDetails[k].length > 0 ? `https://${projectDetailsBody.packageJsonDetails[k]}` : '';
+        const strVal = val as string;
+        pJsonAny[k] = pJson[k] && typeof pJson[k] === 'object'
+          ? { ...(pJson[k] as object), url: strVal.length > 0 ? `https://${strVal}` : '' }
+          : strVal.length > 0 ? `https://${strVal}` : '';
       } else {
-        pJson[k] = projectDetailsBody.packageJsonDetails[k];
+        pJsonAny[k] = val;
       }
     }
   });
@@ -132,8 +138,8 @@ async function configurePackageJson(projectDetailsBody, dir) {
   await writeToPackageJson(dir, pJson);
 }
 
-function restructureNewProjectDetails(input) {
-  const packageJsonDetails = {
+function restructureNewProjectDetails(input: NewProjectBody): NewProjectDetails {
+  const packageJsonDetails: PackageJsonDetails = {
     name: input.name || 'sample-node-project',
     homepage: input.homepage || '',
     bugs: input.bugs || '',
@@ -142,11 +148,11 @@ function restructureNewProjectDetails(input) {
     keywords: input.keywords || [],
     description: input.description || '',
     private: !!input.private,
-    license: input.license || ''
+    license: input.license || '',
   };
 
   const projectSetupDetails = {
-    type_of_app: input.hasOwnProperty('type_of_app') ? input.type_of_app : 'default',
+    type_of_app: input.type_of_app ?? 'default',
     linter: input.linter || '',
     ts_preference: input.ts_preference === 'yes',
     cli_utility_package: input.cli_utility_package || '',
@@ -156,32 +162,30 @@ function restructureNewProjectDetails(input) {
     unit_test_framework: input.unit_test_framework || '',
     web_server_framework: input.web_server_framework || '',
     database: input.database || '',
-    orm: input.orm || ''
+    orm: input.orm || '',
   };
 
-  return {
-    packageJsonDetails,
-    projectSetupDetails
-  };
+  return { packageJsonDetails, projectSetupDetails };
 }
 
-function extractUrlWithoutProtocol(url) {
-  return url.split('://')[1];
+function extractUrlWithoutProtocol(url: string): string {
+  return url.split('://')[1] ?? url;
 }
 
-
-function pickRelevantKeys(pJson) {
-  const repository = pJson.hasOwnProperty('repository') ? (
-    typeof pJson.repository === 'object'
-      ? extractUrlWithoutProtocol(pJson.repository.url) : extractUrlWithoutProtocol(pJson.repository)
+function pickRelevantKeys(pJson: PackageJson): Partial<PackageJsonDetails> {
+  const repository = 'repository' in pJson ? (
+    typeof pJson.repository === 'object' && pJson.repository !== null
+      ? extractUrlWithoutProtocol((pJson.repository as { url: string }).url)
+      : extractUrlWithoutProtocol(pJson.repository as string)
   ) : '';
 
-  const bugs = pJson.hasOwnProperty('bugs') ? (
-    typeof pJson.bugs === 'object'
-      ? extractUrlWithoutProtocol(pJson.bugs.url) : extractUrlWithoutProtocol(pJson.bugs)
+  const bugs = 'bugs' in pJson ? (
+    typeof pJson.bugs === 'object' && pJson.bugs !== null
+      ? extractUrlWithoutProtocol((pJson.bugs as { url: string }).url)
+      : extractUrlWithoutProtocol(pJson.bugs as string)
   ) : '';
 
-  const homepage = pJson.hasOwnProperty('homepage') ? extractUrlWithoutProtocol(pJson.homepage) : '';
+  const homepage = pJson.homepage ? extractUrlWithoutProtocol(pJson.homepage) : '';
 
   return {
     name: pJson.name,
@@ -192,18 +196,18 @@ function pickRelevantKeys(pJson) {
     homepage,
     bugs,
     license: pJson.license,
-    author: pJson.author || ''
+    author: typeof pJson.author === 'object' && pJson.author !== null
+      ? (pJson.author as { name: string }).name
+      : (pJson.author as string) || '',
   };
 }
 
-async function getDefaultsForNewProject(dir) {
-  // Check if git installed, if not return empty object
+async function getDefaultsForNewProject(_dir: string): Promise<Partial<PackageJsonDetails>> {
   if (!(await isGitInstalled())) {
     return {};
   }
 
   const dirName = basename(resolve(process.cwd()));
-
   const gitRepoHttpsUrl = await getGitRemoteRepoHttpsUrl();
   const authorEmail = await getGlobalUserEmail();
 
@@ -212,14 +216,25 @@ async function getDefaultsForNewProject(dir) {
     homepage: gitRepoHttpsUrl ? `${gitRepoHttpsUrl}#readme` : '',
     bugs: gitRepoHttpsUrl ? `${gitRepoHttpsUrl}/issues` : '',
     author: authorEmail,
-    repository: gitRepoHttpsUrl ? `${gitRepoHttpsUrl}.git` : ''
-  }
+    repository: gitRepoHttpsUrl ? `${gitRepoHttpsUrl}.git` : '',
+  };
 }
 
-const getProjectDetails = async (dir) => {
+interface ProjectDirectoryEntry {
+  root: boolean;
+  path: string;
+}
+
+interface ProjectDetailsResult {
+  project: Partial<PackageJsonDetails> | Record<string, never>;
+  is_empty_dir: boolean;
+  defaults: Partial<PackageJsonDetails>;
+  all_project_directories: ProjectDirectoryEntry[];
+}
+
+const getProjectDetails = async (dir: string): Promise<ProjectDetailsResult> => {
   const pJson = await getPackageJson(dir);
 
-  // Directory in which nopalm is initially run
   const parentDir = process.cwd();
 
   const allProjectChildDirectories = (await getAllProjectChildDirectories(parentDir)).map(dirInScope => ({
@@ -232,21 +247,19 @@ const getProjectDetails = async (dir) => {
       project: {},
       is_empty_dir: await isEmptyDir(dir),
       defaults: await getDefaultsForNewProject(dir),
-      all_project_directories: allProjectChildDirectories
+      all_project_directories: allProjectChildDirectories,
     };
   }
 
   return {
     project: pickRelevantKeys(pJson),
-    // false! obviously!
     is_empty_dir: false,
-    // Defaults do not apply for an existing project
     defaults: {},
-    all_project_directories: allProjectChildDirectories
+    all_project_directories: allProjectChildDirectories,
   };
 };
 
-const createNewProject = async (meta, newProjectDetailsBody, dir) => {
+const createNewProject = async (meta: Meta, newProjectDetailsBody: NewProjectBody, dir: string): Promise<boolean> => {
   const packageManager = meta.settings.package_manager;
 
   const restructuredNewProjectDetailsBody = restructureNewProjectDetails(newProjectDetailsBody);
@@ -255,23 +268,23 @@ const createNewProject = async (meta, newProjectDetailsBody, dir) => {
 
   await configurePackageJson(restructuredNewProjectDetailsBody, dir);
 
-  const isFrontendIncluded = ['frontend_only', 'fullstack'].includes(restructuredNewProjectDetailsBody?.projectSetupDetails?.type_of_web_app || ''),
-    isBackendIncluded = ['backend', 'fullstack'].includes(restructuredNewProjectDetailsBody?.projectSetupDetails?.type_of_web_app || '');
+  const isFrontendIncluded = ['frontend_only', 'fullstack'].includes(
+    restructuredNewProjectDetailsBody?.projectSetupDetails?.type_of_web_app || ''
+  );
+  const isBackendIncluded = ['backend', 'fullstack'].includes(
+    restructuredNewProjectDetailsBody?.projectSetupDetails?.type_of_web_app || ''
+  );
 
   const directoriesToInstallPackages = [
     dir,
     isFrontendIncluded ? join(dir, 'client') : '',
-    isBackendIncluded ? join(dir, 'server') : ''
-  ].filter(dir => dir.length > 0);
+    isBackendIncluded ? join(dir, 'server') : '',
+  ].filter(d => d.length > 0);
 
-  Promise.all(directoriesToInstallPackages.map(async dirPath => {
-    // Asynchronously install packages
-    __debug(import.meta.url, `Installing packages from package.json post project creation in path : ${dirPath}`);
-
+  void Promise.all(directoriesToInstallPackages.map(async dirPath => {
+    global.__debug?.(import.meta.url, `Installing packages from package.json post project creation in path : ${dirPath}`);
     changeDirectory(dirPath);
-
     await packageOperation({}, packageManager, 'install_all');
-
     changeDirectory(dir);
   }));
 
@@ -280,16 +293,15 @@ const createNewProject = async (meta, newProjectDetailsBody, dir) => {
   return true;
 };
 
-const updateProject = async (projectDetailsBody, dir) => {
+const updateProject = async (projectDetailsBody: Partial<PackageJsonDetails>, dir: string): Promise<boolean> => {
   await configurePackageJson({ packageJsonDetails: projectDetailsBody }, dir);
-
   return true;
 };
 
 const projectController = {
   getProjectDetails,
   createNewProject,
-  updateProject
+  updateProject,
 };
 
 export default projectController;

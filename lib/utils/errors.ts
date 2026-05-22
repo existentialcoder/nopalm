@@ -1,22 +1,24 @@
+import { Response } from 'express';
+
 import constants from '../constants.js';
 
 const { statusCodes, messages } = constants;
 
 class InvalidProjectError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message);
     this.name = 'InvalidProjectError';
   }
 }
 
 class InvalidRequestBodyError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message);
     this.name = 'InvalidRequestBodyError';
   }
 }
 
-const errorHandler = (er, res) => {
+const errorHandler = (er: Error, res: Response): Response => {
   switch (er.name) {
     case 'InvalidProjectError':
       return res
@@ -37,9 +39,7 @@ const errorHandler = (er, res) => {
 };
 
 export {
-  // Error classes
   InvalidProjectError,
   InvalidRequestBodyError,
-  // Error validation helper methods
   errorHandler,
 };

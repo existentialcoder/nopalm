@@ -1,8 +1,4 @@
-import { Router } from 'express';
-
-import { join } from 'path';
-
-const router = Router();
+import { Router, Request, Response } from 'express';
 
 import controllers from '../../controllers/index.js';
 
@@ -10,18 +6,21 @@ import { errorHandler } from '../../utils/errors.js';
 
 import constants from '../../constants.js';
 
+import { Settings } from '../../types.js';
+
 const { settingsController } = controllers;
 
 const { statusCodes, messages } = constants;
 
-function getGlobalNopalmPath() {
-  return join()
+const router = Router();
+
+interface ScopeQuery {
+  scope?: string;
 }
 
-// Get global or local settings based on the `scope` query param
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request<{}, {}, {}, ScopeQuery>, res: Response) => {
   try {
-    const { scope } = req.query || {};
+    const { scope } = req.query;
 
     if (!scope || !['global', 'local'].includes(scope)) {
       return res.status(statusCodes.BAD_REQUEST)
@@ -30,16 +29,15 @@ router.get('/', async (req, res) => {
 
     const settings = await settingsController.getSettingsController(scope);
 
-    res.send({ settings });
+    return res.send({ settings });
   } catch (ex) {
-    return errorHandler(ex, res);
+    return errorHandler(ex as Error, res);
   }
 });
 
-// update local settings
-router.patch('/', (req, res) => {
+router.patch('/', (req: Request<{}, {}, Settings, ScopeQuery>, res: Response) => {
   try {
-    const { scope } = req.query || {};
+    const { scope } = req.query;
 
     const { body } = req;
 
@@ -48,11 +46,11 @@ router.patch('/', (req, res) => {
         .send({ message: messages.INVALID_SCOPE_QUERY_PARAM });
     }
 
-    const settings = settingsController.updateSettingsController(scope, body);
+    settingsController.updateSettingsController(scope, body);
 
-    res.send({ settings });
+    return res.send({ settings: body });
   } catch (ex) {
-    return errorHandler(ex, res);
+    return errorHandler(ex as Error, res);
   }
 });
 

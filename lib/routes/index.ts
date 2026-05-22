@@ -10,6 +10,6 @@ const router = Router();
 
 router.use('/api', apiRoutes);
 
-router.all('/api/*', (req, res) => res.status(statusCodes.NOT_FOUND).json('No API route found'));
+router.all('/api/*', (_req, res) => res.status(statusCodes.NOT_FOUND).json('No API route found'));
 
 export default router;
