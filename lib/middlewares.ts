@@ -1,38 +1,33 @@
+import { Request, Response, NextFunction } from 'express';
+
 import Utils from './utils/common-utils.js';
 
 import { getSettings } from './utils/settings.js';
 
 const { getPackageManagers } = Utils;
 
-async function setMeta(req, res, next) {
+async function setMeta(req: Request, _res: Response, next: NextFunction): Promise<void> {
     const globalSettings = await getSettings('global');
 
     const packageManagersLocal = await getPackageManagers(process.cwd(), 'local');
 
     const packageManagerToSet = packageManagersLocal.length === 0 || packageManagersLocal.length === 2
-        ? globalSettings.preferences.package_manager : packageManagersLocal[0]
+        ? globalSettings.preferences.package_manager : packageManagersLocal[0];
 
-    const settingsToSetInMeta = {
-        package_manager: packageManagerToSet
+    req.meta = {
+        settings: { package_manager: packageManagerToSet }
     };
-
-    const meta = {
-        settings: settingsToSetInMeta
-    };
-
-    req.meta = meta;
 
     return next();
 }
 
-
-function cspMiddleware(req, res, next) {
+function cspMiddleware(_req: Request, res: Response, next: NextFunction): void {
     res.setHeader(
-        "Content-Security-Policy",
+        'Content-Security-Policy',
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline'; " +
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +  // Allow Google Fonts CSS
-        "font-src 'self' https://fonts.gstatic.com; " +  // Allow fonts from Google Fonts
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+        "font-src 'self' https://fonts.gstatic.com; " +
         "img-src * data:; "
     );
 
@@ -41,5 +36,5 @@ function cspMiddleware(req, res, next) {
 
 export {
     setMeta,
-    cspMiddleware
+    cspMiddleware,
 };

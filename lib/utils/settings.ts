@@ -2,27 +2,23 @@ import { homedir } from 'os';
 
 import { join } from 'path';
 
-import { fileURLToPath } from 'url';
-
 import fsExtra from 'fs-extra';
 
 import constants from '../constants.js';
 
 import Utils from './common-utils.js';
 
-const __filename = fileURLToPath(import.meta.url);
+import { Settings } from '../types.js';
 
 const { existsSync, mkdirSync, writeFileSync, readFileSync } = fsExtra;
 
 const { defaultSettings } = constants;
 
-const { getPackageManagers, copyFileOrDirectory } = Utils;
-
-let debuglog = null;
+const { getPackageManagers } = Utils;
 
 const SETTINGS_FILE = 'settings.json';
 
-function ensureGlobalSettings() {
+function ensureGlobalSettings(): void {
   const globalNopalmFolderPath = join(homedir(), '.nopalm');
 
   if (!existsSync(globalNopalmFolderPath)) {
@@ -34,42 +30,35 @@ function ensureGlobalSettings() {
   }
 }
 
-async function getSettings(scope) {
-  if (global.__debug) {
-    debuglog = __debug.bind(null, __filename);
-
-    __debug(import.meta.url, `Getting ${scope} settings`);
-  }
+async function getSettings(scope: string): Promise<Settings> {
+  global.__debug?.(import.meta.url, `Getting ${scope} settings`);
 
   const nopalmFolderPath = join(scope === 'global' ? homedir() : process.cwd(), '.nopalm');
 
   const nopalmSettingsFilePath = join(nopalmFolderPath, SETTINGS_FILE);
 
   const settings = JSON.parse(
-    readFileSync(nopalmSettingsFilePath)
-  );
+    readFileSync(nopalmSettingsFilePath, { encoding: 'utf8' })
+  ) as Settings;
 
   if (scope === 'local') {
-    // if both are found always get the first one
     const [packageManager] = await getPackageManagers(process.cwd(), scope);
-
     settings.preferences.package_manager = packageManager;
   }
 
   return settings;
 }
 
-function updateSettings(scope, settingsToUpdate) {
+function updateSettings(scope: string, settingsToUpdate: Settings): void {
   const nopalmFolderPath = join(scope === 'global' ? homedir() : process.cwd(), '.nopalm');
 
   const nopalmSettingsFilePath = join(nopalmFolderPath, SETTINGS_FILE);
 
-  return writeFileSync(nopalmSettingsFilePath, JSON.stringify(settingsToUpdate),
-    { encoding: 'utf8', flag: 'w' });
+  writeFileSync(nopalmSettingsFilePath, JSON.stringify(settingsToUpdate), { encoding: 'utf8', flag: 'w' });
 }
 
 export {
   ensureGlobalSettings,
   getSettings,
-  updateSettings
+  updateSettings,
 };

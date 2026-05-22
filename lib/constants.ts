@@ -1,8 +1,10 @@
+import { PackageManager } from './types.js';
+
 const appearanceModes = {
   LIGHT: 'light',
   DARK: 'dark',
   SYSTEM: 'system'
-};
+} as const;
 
 const accentColors = {
   red: 'red',
@@ -17,9 +19,9 @@ const accentColors = {
   purple: 'purple',
   magenta: 'magenta',
   geekblue: 'geekblue'
-};
+} as const;
 
-const packageManagers = [
+const packageManagers: PackageManager[] = [
   {
     name: 'npm',
     file: 'PACKAGE_LOCK_JSON',
@@ -35,8 +37,7 @@ const logLevels = {
   DEBUG: 'debug',
   ERROR: 'error',
   WARN: 'warn'
-};
-
+} as const;
 
 export default {
   statusCodes: {
@@ -54,8 +55,8 @@ export default {
     INVALID_REQUEST_BODY: 'Invalid request. Please check the request body',
     INVALID_SCOPE_QUERY_PARAM: 'Invalid / missing query param - scope',
     SOMETHING_WRONG: 'Something went wrong',
-    SUCCESSFUL_PACKAGE_INSTALL: 'Package is succesfully installed',
-    SUCCESSFUL_PACKAGE_UNINSTALL: 'Package is succesfully uninstalled',
+    SUCCESSFUL_PACKAGE_INSTALL: 'Package is successfully installed',
+    SUCCESSFUL_PACKAGE_UNINSTALL: 'Package is successfully uninstalled',
   },
   files: {
     PACKAGE_JSON: 'package.json',
@@ -72,7 +73,7 @@ export default {
       accent_color: accentColors.geekblue
     },
     preferences: {
-      package_manager: packageManagers.find(({ name }) => name === 'npm').name,
+      package_manager: packageManagers.find(({ name }) => name === 'npm')!.name,
       log_level: logLevels.INFO
     }
   },
